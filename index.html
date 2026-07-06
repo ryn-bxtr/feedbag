@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-<meta name="apple-mobile-web-app-title" content="Atlas" />
+<meta name="apple-mobile-web-app-title" content="Feedbag" />
 <meta name="theme-color" content="#211C17" />
-<title>Atlas — a table worth the trip</title>
+<title>Feedbag — a table worth the trip</title>
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Hanken+Grotesk:wght@400;500;600&display=swap" rel="stylesheet" />
@@ -17,7 +17,7 @@
     --ink:#211C17; --ink-soft:#5A5147;
     --paper:#FAF7F1; --surface:#FFFFFF;
     --hair:#E5DDD0; --hair-strong:#D8CEBD;
-    --michelin:#9E2B25; --beard:#B0873E; --ddd:#C25A2B; --pick:#3B6B52; --family:#4E6E8E;
+    --michelin:#9E2B25; --bib:#7A4E7E; --beard:#B0873E; --ddd:#C25A2B; --pick:#3B6B52; --family:#4E6E8E; --resy:#275E64;
     --shadow:0 6px 24px rgba(33,28,23,.14); --shadow-lg:0 12px 40px rgba(33,28,23,.22);
   }
   *{box-sizing:border-box;} html,body{margin:0;padding:0;height:100%;}
@@ -31,11 +31,10 @@
   .brand{display:flex;align-items:baseline;gap:8px;flex:1;min-width:0;}
   .brand h1{font-family:"Fraunces",serif;font-weight:600;font-size:22px;letter-spacing:-.01em;margin:0;line-height:1;white-space:nowrap;}
   .brand .tag{font-size:11px;color:var(--ink-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  .iconbtn{pointer-events:auto;border:1px solid var(--hair-strong);background:var(--surface);color:var(--ink);width:40px;height:40px;border-radius:11px;display:grid;place-items:center;cursor:pointer;box-shadow:var(--shadow);flex:none;}
+  .iconbtn{pointer-events:auto;border:1px solid var(--hair-strong);background:var(--surface);color:var(--ink);width:40px;height:40px;border-radius:11px;display:grid;place-items:center;cursor:pointer;box-shadow:var(--shadow);flex:none;position:relative;}
   .iconbtn:active{transform:scale(.95);}
   .iconbtn svg{width:19px;height:19px;stroke:var(--ink);stroke-width:1.8;fill:none;}
   .syncdot{position:absolute;top:7px;right:7px;width:8px;height:8px;border-radius:50%;background:var(--pick);display:none;}
-  .iconbtn{position:relative;}
   .iconbtn.synced .syncdot{display:block;}
 
   .filters{display:flex;gap:7px;margin-top:10px;overflow-x:auto;pointer-events:auto;padding-bottom:2px;scrollbar-width:none;-webkit-overflow-scrolling:touch;}
@@ -72,7 +71,7 @@
 
   label.fld{display:block;margin:0 0 15px;}
   label.fld > span, .fldlabel{display:block;font-size:12px;font-weight:600;color:var(--ink-soft);margin-bottom:6px;letter-spacing:.02em;text-transform:uppercase;}
-  input[type=text],input[type=password],textarea,select{width:100%;font-family:inherit;font-size:15px;color:var(--ink);border:1px solid var(--hair-strong);border-radius:11px;padding:12px 13px;background:var(--paper);}
+  input[type=text],textarea,select{width:100%;font-family:inherit;font-size:15px;color:var(--ink);border:1px solid var(--hair-strong);border-radius:11px;padding:12px 13px;background:var(--paper);}
   input:focus,textarea:focus,select:focus{outline:2px solid var(--ink);outline-offset:1px;border-color:var(--ink);}
   textarea{resize:vertical;min-height:64px;line-height:1.45;}
   .addrrow{display:flex;gap:8px;} .addrrow input{flex:1;}
@@ -103,7 +102,6 @@
   .row2{display:flex;gap:10px;} .row2 button{flex:1;}
   .maplink{display:block;text-align:center;text-decoration:none;color:var(--ink);border:1px solid var(--hair-strong);border-radius:11px;padding:12px;font-weight:600;font-size:14px;margin-top:10px;}
 
-  /* ratings */
   .ratings{border-top:1px solid var(--hair);margin-top:18px;padding-top:16px;}
   .rating-row{display:flex;align-items:flex-start;gap:10px;margin-bottom:12px;}
   .rating-who{font-weight:600;font-size:13px;min-width:64px;padding-top:2px;}
@@ -119,6 +117,7 @@
   .li-main{flex:1;min-width:0;}
   .li-name{font-family:"Fraunces",serif;font-weight:600;font-size:16px;margin:0 0 2px;}
   .li-meta{font-size:12px;color:var(--ink-soft);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .li-dist{font-size:12px;font-weight:600;color:var(--ink);flex:none;padding-top:3px;}
   .empty{text-align:center;padding:36px 20px;color:var(--ink-soft);}
   .empty h3{font-family:"Fraunces",serif;font-weight:500;color:var(--ink);font-size:19px;margin:0 0 8px;}
   .empty p{font-size:14px;line-height:1.5;margin:0;}
@@ -126,18 +125,18 @@
   .seednote b{color:var(--ink);}
   .livestatus{font-size:13px;color:var(--ink-soft);margin-top:10px;min-height:18px;}
 
-  /* guide */
   .guide h3{font-family:"Fraunces",serif;font-weight:600;font-size:17px;margin:22px 0 8px;}
   .guide h3:first-child{margin-top:0;}
   .guide p, .guide li{font-size:14px;line-height:1.55;color:var(--ink);}
   .guide ol{padding-left:20px;margin:6px 0 12px;}
   .guide li{margin-bottom:7px;}
   .guide code{background:var(--paper);border:1px solid var(--hair);border-radius:5px;padding:1px 5px;font-size:12.5px;}
-  pre.codeblock{background:var(--ink);color:var(--paper);border-radius:11px;padding:13px;font-size:11.5px;line-height:1.5;overflow-x:auto;white-space:pre;margin:8px 0 4px;}
-  .copybtn{border:1px solid var(--hair-strong);background:var(--surface);border-radius:8px;padding:6px 12px;font-size:12px;font-weight:600;font-family:inherit;cursor:pointer;color:var(--ink-soft);margin-bottom:14px;}
 
   .menusec{border-top:1px solid var(--hair);margin-top:18px;padding-top:16px;}
   .menusec:first-child{border-top:none;margin-top:0;padding-top:0;}
+
+  .welcome-logo{font-family:"Fraunces",serif;font-weight:600;font-size:34px;text-align:center;margin:8px 0 2px;}
+  .welcome-sub{text-align:center;color:var(--ink-soft);font-size:14px;margin:0 0 20px;}
 
   @media (prefers-reduced-motion:reduce){.sheet,.scrim{transition:none;}}
 </style>
@@ -148,9 +147,9 @@
 
 <header>
   <div class="bar">
-    <div class="brand"><h1>Atlas</h1><span class="tag">a table worth the trip</span></div>
+    <div class="brand"><h1>Feedbag</h1><span class="tag">a table worth the trip</span></div>
     <button class="iconbtn" id="btn-search" aria-label="Search places"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></button>
-    <button class="iconbtn" id="btn-menu" aria-label="Data and settings"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span class="syncdot"></span></button>
+    <button class="iconbtn" id="btn-menu" aria-label="Settings and data"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span class="syncdot"></span></button>
   </div>
   <div class="filters" id="filters"></div>
 </header>
@@ -165,38 +164,41 @@
 <div class="scrim" id="scrim"></div>
 <section class="sheet" id="sheet" aria-modal="true" role="dialog">
   <div class="grab"></div>
-  <div class="sheet-head"><h2 id="sheet-title">Atlas</h2><button class="closebtn" id="btn-close" aria-label="Close">✕</button></div>
+  <div class="sheet-head"><h2 id="sheet-title">Feedbag</h2><button class="closebtn" id="btn-close" aria-label="Close">✕</button></div>
   <div class="sheet-body" id="sheet-body"></div>
 </section>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 /* ============================================================
-   Atlas v3 — personal curated map of acclaimed restaurants.
-   New in v3:
-   • Shared atlas: optional Supabase sync so two (or more)
-     phones share one live dataset. Works device-only otherwise.
-   • Profiles + per-person star ratings and takes.
-   • Full setup guide inside the app (menu → Setup guide).
-   All seed data is best-effort from general knowledge — every
-   place starts UNVERIFIED until you confirm it yourself.
+   FEEDBAG v4 — a shared, curated map of tables worth the trip.
+   Built-in shared sync (Supabase), per-person "feedbag" ratings
+   in their own table, Near Me distances, Bib Gourmand lens,
+   Resy tag, archive-not-delete, zero-setup onboarding.
+   Seed data is best-effort; every place starts UNVERIFIED.
    ============================================================ */
+
+/* ---- BUILT-IN SHARED DATABASE (public app key by design) ---- */
+const CLOUD = {
+  url: "https://fueuzrgfzkbjmdkhenks.supabase.co",
+  key: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ1ZXV6cmdmemtiam1ka2hlbmtzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMyOTcxNjAsImV4cCI6MjA5ODg3MzE2MH0.ixspDrdV4ZCluNosCpENOSZqwq0HZp4j-sb2gGgpmas"
+};
 
 const ACC = {
   michelin:{ label:"Michelin", color:cssv("--michelin") },
+  bib:{ label:"Bib Gourmand", color:cssv("--bib") },
   beard:{ label:"James Beard", color:cssv("--beard") },
   ddd:{ label:"Triple-D", color:cssv("--ddd") },
-  pick:{ label:"My pick", color:cssv("--pick") },
+  pick:{ label:"Our pick", color:cssv("--pick") },
 };
-const FAM_COLOR = cssv("--family");
+const FAM_COLOR = cssv("--family"), RESY_COLOR = cssv("--resy");
 function cssv(v){ return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); }
 
-const KEY="aixis-atlas-v2", PROFKEY="aixis-atlas-profile", CLOUDKEY="aixis-atlas-cloud";
+const KEY="aixis-atlas-v2", PROFKEY="aixis-atlas-profile";
 
 /* ---- SEED DATASET ----
    [name, cuisine, lat, lng, city, accCodes, family(0/1), note]
-   accCodes: M1/M2/M3 (Michelin + stars), JB, DDD, PICK.
-   Coordinates approximate (neighborhood-level). Verify before you drive. */
+   accCodes: M1/M2/M3, BIB, JB, DDD, PICK. Coordinates approximate. */
 const SEED=[
 /* ---------- COPENHAGEN + SCANDINAVIA ---------- */
 ["Geranium","New Nordic",55.7057,12.5722,"Copenhagen, Denmark","M3",0,"Top floor of the national stadium."],
@@ -410,8 +412,8 @@ const SEED=[
 ["Spring","Contemporary",33.9530,-84.5490,"Marietta, GA","M1",0,"Worth the drive up to the square."],
 ["O by Brush","Sushi",33.8470,-84.3730,"Atlanta, GA","M1",0,""],
 ["Omakase Table","Sushi",33.7840,-84.4130,"Atlanta, GA","M1",0,""],
-["Antico Pizza","Neapolitan pizza",33.7790,-84.4060,"Atlanta, GA","PICK",1,"Michelin Bib Gourmand. Slices by the box, loud and fast."],
-["Heirloom Market BBQ","Korean-Southern BBQ",33.8880,-84.4680,"Smyrna, GA","PICK",1,"Michelin Bib Gourmand. Tiny counter, huge flavor."],
+["Antico Pizza","Neapolitan pizza",33.7790,-84.4060,"Atlanta, GA","BIB",1,"Michelin Bib Gourmand. Slices by the box, loud and fast."],
+["Heirloom Market BBQ","Korean-Southern BBQ",33.8880,-84.4680,"Smyrna, GA","BIB",1,"Michelin Bib Gourmand. Tiny counter, huge flavor."],
 /* ---------- NEW ORLEANS (2025) ---------- */
 ["Emeril's","Contemporary Creole",29.9430,-90.0690,"New Orleans, LA","M2",0,"The South's only two-star (2025)."],
 /* ---------- TEXAS (verified 2025 guide) ---------- */
@@ -452,9 +454,9 @@ const SEED=[
 ["311 Omakase","Sushi omakase",42.3430,-71.0720,"Boston, MA","M1",0,"Boston's first-ever star (2025). South End."],
 ["Neptune Oyster","Seafood",42.3630,-71.0560,"Boston, MA","PICK",0,"Michelin Recommended. The hot buttered lobster roll. No reservations."],
 ["Oleana","Eastern Mediterranean",42.3720,-71.0900,"Cambridge, MA","JB",0,"Ana Sortun, Beard winner. Patio in summer."],
-["PAGU","Japanese-Spanish",42.3650,-71.1040,"Cambridge, MA","PICK",1,"Michelin Bib Gourmand. Tracy Chang."],
-["Fox & the Knife","Italian enoteca",42.3380,-71.0480,"South Boston, MA","PICK",0,"Michelin Bib Gourmand. Karen Akunowicz (Beard winner)."],
-["Mahaniyom","Thai small plates",42.3320,-71.1030,"Brookline, MA","PICK",0,"Bib Gourmand + Michelin's Exceptional Cocktails award (2025)."],
+["PAGU","Japanese-Spanish",42.3650,-71.1040,"Cambridge, MA","BIB",1,"Michelin Bib Gourmand. Tracy Chang."],
+["Fox & the Knife","Italian enoteca",42.3380,-71.0480,"South Boston, MA","BIB",0,"Michelin Bib Gourmand. Karen Akunowicz (Beard winner)."],
+["Mahaniyom","Thai small plates",42.3320,-71.1030,"Brookline, MA","BIB",0,"Bib Gourmand + Michelin's Exceptional Cocktails award (2025)."],
 ["Santarpio's Pizza","Pizza + lamb skewers",42.3720,-71.0390,"East Boston, MA","DDD",1,"Old-school Eastie institution — verify the TV lore."],
 /* ---------- PHILADELPHIA (first Michelin guide, Nov 2025) ---------- */
 ["Her Place Supper Club","Dinner-party tasting",39.9520,-75.1650,"Philadelphia, PA","M1",0,"One seating, chalkboard menu. New star 2025."],
@@ -495,10 +497,10 @@ const SEED=[
 /* ---------- POLAND — VERIFIED 2026 NATIONWIDE GUIDE ---------- */
 ["Arco by Paco Perez","Creative (Catalan-Baltic)",54.4030,18.5670,"Gdansk, Poland","M1",0,"Star confirmed 2026 — 33rd floor of Olivia Star tower, Baltic views."],
 ["Eliksir","Modern Polish + cocktails",54.3520,18.6460,"Gdansk, Poland","PICK",0,"Poland's only Michelin Green Star. Food-and-cocktail pairing."],
-["Hewelke","Modern Polish",54.3560,18.6440,"Gdansk, Poland","PICK",0,"Michelin Bib Gourmand."],
-["Treinta y Tres","Latin-Polish",54.3500,18.6530,"Gdansk, Poland","PICK",0,"Michelin Bib Gourmand."],
-["1911 Restaurant","Modern Polish",54.4440,18.5670,"Sopot, Poland","PICK",0,"Michelin Bib Gourmand — in a 1911 villa, blocks from the pier."],
-["Vinissimo","Italian-Polish + wine",54.4420,18.5660,"Sopot, Poland","PICK",0,"Michelin Bib Gourmand."],
+["Hewelke","Modern Polish",54.3560,18.6440,"Gdansk, Poland","BIB",0,"Michelin Bib Gourmand."],
+["Treinta y Tres","Latin-Polish",54.3500,18.6530,"Gdansk, Poland","BIB",0,"Michelin Bib Gourmand."],
+["1911 Restaurant","Modern Polish",54.4440,18.5670,"Sopot, Poland","BIB",0,"Michelin Bib Gourmand — in a 1911 villa, blocks from the pier."],
+["Vinissimo","Italian-Polish + wine",54.4420,18.5660,"Sopot, Poland","BIB",0,"Michelin Bib Gourmand."],
 ["hub.praga","Modern Polish",52.2540,21.0350,"Warsaw, Poland","M1",0,"Warsaw's third star (2025). Praga side of the river — crayfish royale."],
 ["Alon Omakase","Edomae sushi",52.2300,21.0100,"Warsaw, Poland","M1",0,"Poland's first Japanese star (2026)."],
 ["Rozbrat 20","Modern European",52.2220,21.0330,"Warsaw, Poland","M1",0,""],
@@ -516,7 +518,7 @@ const SEED=[
 /* ---------- SOUTHERN SWEDEN (SKANE — ferry side) ---------- */
 ["Vollmers","Modern Swedish",55.5960,13.0040,"Malmo, Sweden","M2",0,"Malmo's two-star — verify current status."],
 ["VYN","Skane tasting",55.4750,14.2830,"Skillinge, Sweden","M2",0,"Daniel Berlin's inn on the Osterlen coast — verify stars. Between Ystad and Simrishamn, right on a ferry-country road trip."],
-["Lyran","Neo-bistro",55.5890,13.0110,"Malmo, Sweden","PICK",0,"Michelin Bib Gourmand — verify. Mollevangen."],
+["Lyran","Neo-bistro",55.5890,13.0110,"Malmo, Sweden","BIB",0,"Michelin Bib Gourmand — verify. Mollevangen."],
 ["Malmo Saluhall","Food hall",55.6120,12.9970,"Malmo, Sweden","PICK",1,"Market hall in an old freight depot — everyone picks their own."],
 /* ---------- COPENHAGEN — CASUAL + FAMILY LAYER ---------- */
 ["Popl","Burgers (ex-noma)",55.6790,12.6000,"Copenhagen, Denmark","PICK",1,"The noma team's burger spot, Christianshavn."],
@@ -524,14 +526,15 @@ const SEED=[
 ["Restaurant Schonnemann","Smorrebrod",55.6810,12.5750,"Copenhagen, Denmark","PICK",0,"Smorrebrod institution since 1877 — lunch only, book ahead."],
 ["Sanchez","Mexican",55.6710,12.5560,"Copenhagen, Denmark","PICK",1,"Rosio Sanchez (ex-noma pastry). Vesterbro."],
 ["Barr","Nordic beer hall",55.6790,12.5920,"Copenhagen, Denmark","PICK",1,"In noma's old waterfront space — schnitzel and great beer, kids fine."],
-["Selma","Modern smorrebrod",55.6830,12.5620,"Copenhagen, Denmark","PICK",0,"Michelin Bib Gourmand — verify. The new-school open sandwich."]
+["Selma","Modern smorrebrod",55.6830,12.5620,"Copenhagen, Denmark","BIB",0,"Michelin Bib Gourmand — verify. The new-school open sandwich."]
 ];
 
 /* ---------- STATE ---------- */
 let PLACES=loadLocal();
+let RATINGS={}; // placeId -> { person: {score,take} }
 let PROFILE=localStorage.getItem(PROFKEY)||"";
-let CLOUD=loadCloudCfg();
 let activeFilters=new Set(), searchTerm="", editingId=null, pendingLatLng=null;
+let userLoc=null;
 const markers={};
 
 /* ---------- MAP ---------- */
@@ -540,7 +543,7 @@ L.control.zoom({position:"topright"}).addTo(map);
 L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",{attribution:"© OpenStreetMap © CARTO",maxZoom:19}).addTo(map);
 document.querySelector(".leaflet-top.leaflet-right").style.marginTop="96px";
 
-/* ---------- SEED EXPANSION ---------- */
+/* ---------- SEEDS ---------- */
 function slug(s){return s.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");}
 function expandSeed(r){
   const [n,c,la,lo,ci,acc,f,no]=r;
@@ -548,20 +551,23 @@ function expandSeed(r){
   const accolades=[]; let stars=0;
   codes.forEach(cd=>{
     if(/^M[123]$/.test(cd)){ accolades.push("michelin"); stars=+cd[1]; }
+    else if(cd==="BIB") accolades.push("bib");
     else if(cd==="JB") accolades.push("beard");
     else if(cd==="DDD") accolades.push("ddd");
     else if(cd==="PICK") accolades.push("pick");
   });
-  return {id:"s-"+slug(n),name:n,cuisine:c,lat:la,lng:lo,address:ci,accolades,stars,fam:!!f,note:no||"",v:false,ratings:{}};
+  return {id:"s-"+slug(n),name:n,cuisine:c,lat:la,lng:lo,address:ci,accolades,stars,fam:!!f,resy:false,note:no||"",v:false,archived:false};
 }
 
-/* ---------- FILTER / VISIBILITY ---------- */
+/* ---------- VISIBILITY ---------- */
 function visiblePlaces(){
   return PLACES.filter(p=>{
+    if(p.archived) return false;
     if(activeFilters.size){
       let ok=false;
       for(const f of activeFilters){
         if(f==="family"){ if(p.fam) ok=true; }
+        else if(f==="resy"){ if(p.resy) ok=true; }
         else if((p.accolades||[]).includes(f)) ok=true;
       }
       if(!ok) return false;
@@ -574,10 +580,20 @@ function visiblePlaces(){
   });
 }
 
+/* ---------- DISTANCE ---------- */
+function distMi(lat1,lon1,lat2,lon2){
+  const R=3958.8, toR=x=>x*Math.PI/180;
+  const dLat=toR(lat2-lat1), dLon=toR(lon2-lon1);
+  const a=Math.sin(dLat/2)**2+Math.cos(toR(lat1))*Math.cos(toR(lat2))*Math.sin(dLon/2)**2;
+  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+}
+function fmtDist(mi){ return mi<10?mi.toFixed(1)+" mi":Math.round(mi)+" mi"; }
+
 /* ---------- MARKERS ---------- */
 function pinColor(p){
   const a=p.accolades||[];
   if(a.includes("michelin")) return ACC.michelin.color;
+  if(a.includes("bib")) return ACC.bib.color;
   if(a.includes("beard")) return ACC.beard.color;
   if(a.includes("ddd")) return ACC.ddd.color;
   if(a.includes("pick")) return ACC.pick.color;
@@ -604,7 +620,9 @@ function renderMarkers(){
 /* ---------- FILTER CHIPS ---------- */
 function renderFilters(){
   const wrap=document.getElementById("filters"); wrap.innerHTML="";
-  const defs=[...Object.entries(ACC),["family",{label:"Family-friendly",color:FAM_COLOR}]];
+  const defs=[...Object.entries(ACC),
+    ["family",{label:"Family-friendly",color:FAM_COLOR}],
+    ["resy",{label:"On Resy",color:RESY_COLOR}]];
   defs.forEach(([key,a])=>{
     const b=document.createElement("button");
     b.className="chip"; b.setAttribute("aria-pressed",activeFilters.has(key));
@@ -621,13 +639,32 @@ function closeSheet(){sheet.classList.remove("on");scrim.classList.remove("on");
 scrim.onclick=closeSheet;
 document.getElementById("btn-close").onclick=closeSheet;
 
+/* ---------- WELCOME (first run) ---------- */
+function openWelcome(){
+  document.getElementById("sheet-body").innerHTML=`
+    <p class="welcome-logo">Feedbag</p>
+    <p class="welcome-sub">A shared map of tables worth the trip —<br>Michelin, Beard, Triple-D, and our own finds.</p>
+    <label class="fld"><span>Your first name</span>
+      <input type="text" id="w-name" placeholder="e.g. Ryan" autocomplete="given-name"/></label>
+    <button class="primary" id="w-go">Start exploring</button>
+    <div class="seednote">Your name signs the ratings you leave ("give it feedbag"). Everything else is shared automatically — nothing to set up.</div>`;
+  openSheet("Welcome");
+  document.getElementById("w-go").onclick=()=>{
+    const n=document.getElementById("w-name").value.trim();
+    if(!n){document.getElementById("w-name").focus();return;}
+    PROFILE=n;localStorage.setItem(PROFKEY,n);closeSheet();
+  };
+}
+
 /* ---------- FORM ---------- */
 function openForm(place){
   editingId=place?place.id:null;
   pendingLatLng=place?{lat:place.lat,lng:place.lng}:null;
-  const p=place||{name:"",cuisine:"",address:"",accolades:[],stars:0,fam:false,note:""};
-  const opts=[...Object.entries(ACC),["family",{label:"Family-friendly",color:FAM_COLOR}]];
-  const isOn=k=>k==="family"?p.fam:(p.accolades||[]).includes(k);
+  const p=place||{name:"",cuisine:"",address:"",accolades:[],stars:0,fam:false,resy:false,note:""};
+  const opts=[...Object.entries(ACC),
+    ["family",{label:"Family-friendly",color:FAM_COLOR}],
+    ["resy",{label:"On Resy",color:RESY_COLOR}]];
+  const isOn=k=>k==="family"?p.fam:k==="resy"?p.resy:(p.accolades||[]).includes(k);
   const accHTML=opts.map(([k,a])=>`
     <label class="accopt" data-acc="${k}" data-on="${isOn(k)}">
       <input type="checkbox" ${isOn(k)?"checked":""}/>
@@ -639,14 +676,14 @@ function openForm(place){
       <div class="addrrow"><input type="text" id="f-addr" value="${esc(p.address)}" placeholder="Street, city, country"/><button class="geobtn" id="f-geo">Find</button></div>
       <div class="geohint" id="f-geohint">${place?"Saved location kept unless you re-find.":"Type an address, then Find to drop the pin."}</div>
     </label>
-    <label class="fld"><span>Cuisine</span><input type="text" id="f-cuisine" value="${esc(p.cuisine)}" placeholder="e.g. Cajun, Sushi, Barbecue"/></label>
+    <label class="fld"><span>Cuisine</span><input type="text" id="f-cuisine" value="${esc(p.cuisine)}" placeholder="e.g. Cajun, Sushi, Cheesesteak"/></label>
     <div class="fld"><span class="fldlabel">Lenses</span><div class="accgrid" id="f-acc">${accHTML}</div></div>
     <label class="fld" id="f-starswrap" style="${(p.accolades||[]).includes("michelin")?"":"display:none"}"><span>Michelin stars</span>
       <select id="f-stars"><option value="1"${p.stars===1?" selected":""}>★</option><option value="2"${p.stars===2?" selected":""}>★★</option><option value="3"${p.stars===3?" selected":""}>★★★</option></select>
     </label>
     <label class="fld"><span>Shared note</span><textarea id="f-note" placeholder="Why it's worth it. What to order.">${esc(p.note)}</textarea></label>
     <button class="primary" id="f-save">${place?"Save changes":"Add to map"}</button>
-    ${place?`<button class="ghost danger" id="f-del">Remove this place</button>`:""}`;
+    ${place?`<button class="ghost danger" id="f-del">Remove from map</button>`:""}`;
   openSheet(place?"Edit place":"Add a place");
   document.querySelectorAll("#f-acc .accopt").forEach(el=>{
     el.onclick=e=>{
@@ -657,7 +694,7 @@ function openForm(place){
   });
   document.getElementById("f-geo").onclick=geocode;
   document.getElementById("f-save").onclick=saveForm;
-  if(place)document.getElementById("f-del").onclick=()=>removePlace(place.id);
+  if(place)document.getElementById("f-del").onclick=()=>archivePlace(place.id);
 }
 
 async function geocode(){
@@ -683,10 +720,12 @@ function saveForm(){
   if(!pendingLatLng){
     const h=document.getElementById("f-geohint");h.className="geohint err";h.textContent="Find the address to place the pin first.";return;
   }
-  const accolades=[];let fam=false;
+  const accolades=[];let fam=false,resy=false;
   document.querySelectorAll("#f-acc .accopt").forEach(el=>{
     if(el.querySelector("input").checked){
-      if(el.dataset.acc==="family")fam=true;else accolades.push(el.dataset.acc);
+      if(el.dataset.acc==="family")fam=true;
+      else if(el.dataset.acc==="resy")resy=true;
+      else accolades.push(el.dataset.acc);
     }
   });
   const prev=editingId?PLACES.find(p=>p.id===editingId):null;
@@ -697,10 +736,9 @@ function saveForm(){
     note:document.getElementById("f-note").value.trim(),
     accolades,
     stars:accolades.includes("michelin")?+document.getElementById("f-stars").value:0,
-    fam,
+    fam,resy,
     lat:pendingLatLng.lat,lng:pendingLatLng.lng,
-    v:true,
-    ratings:(prev&&prev.ratings)||{}
+    v:true,archived:(prev&&prev.archived)||false
   };
   if(editingId)PLACES=PLACES.map(p=>p.id===editingId?rec:p);
   else PLACES.push(rec);
@@ -709,20 +747,21 @@ function saveForm(){
   map.setView([rec.lat,rec.lng],13);
 }
 
-function removePlace(id){
-  PLACES=PLACES.filter(p=>p.id!==id);
-  persistLocal();cloudDelete(id);
+function archivePlace(id){
+  const p=PLACES.find(x=>x.id===id);if(!p)return;
+  p.archived=true;
+  persistLocal();cloudUpsert([p]);
   renderMarkers();closeSheet();
 }
 
-/* ---------- DETAIL + RATINGS ---------- */
+/* ---------- DETAIL + FEEDBAG (ratings) ---------- */
 function badgeFor(p,a){
   if(a==="michelin")return `<span class="badge" style="background:${ACC.michelin.color}">Michelin ${"★".repeat(p.stars||1)}</span>`;
   return `<span class="badge" style="background:${ACC[a].color}">${ACC[a].label}</span>`;
 }
 function ratingsHTML(p){
-  const r=p.ratings||{};
-  const others=Object.entries(r).map(([who,val])=>`
+  const r=RATINGS[p.id]||{};
+  const rows=Object.entries(r).map(([who,val])=>`
     <div class="rating-row">
       <span class="rating-who">${esc(who)}</span>
       <div><span class="rating-stars">${"★".repeat(val.score||0)}${"☆".repeat(Math.max(0,5-(val.score||0)))}</span>
@@ -730,24 +769,26 @@ function ratingsHTML(p){
     </div>`).join("");
   const mine=PROFILE&&r[PROFILE]?r[PROFILE]:{score:0,take:""};
   return `<div class="ratings">
-    <span class="fldlabel">Our takes</span>
-    ${others||`<p class="geohint">No ratings yet — be the first.</p>`}
+    <span class="fldlabel">The feedbag</span>
+    ${rows||`<p class="geohint">No takes yet — be the first to give it feedbag.</p>`}
     ${PROFILE?`
-      <span class="fldlabel" style="margin-top:12px;">${esc(PROFILE)}'s rating</span>
+      <span class="fldlabel" style="margin-top:12px;">Give it feedbag, ${esc(PROFILE)}</span>
       <div class="starpick" id="r-stars">${[1,2,3,4,5].map(n=>`<button data-n="${n}" class="${mine.score>=n?"on":""}" aria-label="${n} star${n>1?"s":""}">★</button>`).join("")}</div>
       <textarea id="r-take" placeholder="Your take — worth the trip?">${esc(mine.take||"")}</textarea>
-      <button class="ghost" id="r-save">Save my rating</button>`
-    :`<p class="geohint">Set your name in the menu (☰ → Profile) to rate places.</p>`}
+      <button class="ghost" id="r-save">Save my take</button>`
+    :`<p class="geohint">Set your name (☰ → Profile) to rate places.</p>`}
   </div>`;
 }
 function openDetail(id){
   const p=PLACES.find(x=>x.id===id);if(!p)return;
   const badges=(p.accolades||[]).filter(a=>ACC[a]).map(a=>badgeFor(p,a)).join("")
-    +(p.fam?`<span class="badge" style="background:${FAM_COLOR}">Family-friendly</span>`:"");
+    +(p.fam?`<span class="badge" style="background:${FAM_COLOR}">Family-friendly</span>`:"")
+    +(p.resy?`<span class="badge" style="background:${RESY_COLOR}">On Resy</span>`:"");
   const gmaps=`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.name+" "+(p.address||""))}`;
+  const dist=userLoc?fmtDist(distMi(userLoc.lat,userLoc.lng,p.lat,p.lng))+" away":"";
   document.getElementById("sheet-body").innerHTML=`
     ${badges?`<div class="accbadges">${badges}</div>`:""}
-    ${p.cuisine?`<p class="detail-cuisine">${esc(p.cuisine)}</p>`:""}
+    ${p.cuisine?`<p class="detail-cuisine">${esc(p.cuisine)}${dist?" · "+dist:""}</p>`:dist?`<p class="detail-cuisine">${dist}</p>`:""}
     ${p.note?`<p class="detail-note">${esc(p.note)}</p>`:""}
     ${p.address?`<p class="detail-addr"><svg viewBox="0 0 24 24"><path d="M12 21s7-6.3 7-11a7 7 0 10-14 0c0 4.7 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>${esc(p.address)}</p>`:""}
     ${p.v?"":`<p class="verifyrow">Unverified — double-check hours, status, and exact location before you go.</p>`}
@@ -760,11 +801,12 @@ function openDetail(id){
     </div>`;
   openSheet(p.name);
   document.getElementById("d-edit").onclick=()=>openForm(p);
-  document.getElementById("d-del").onclick=()=>removePlace(p.id);
+  document.getElementById("d-del").onclick=()=>archivePlace(p.id);
   const vb=document.getElementById("d-verify");
   if(vb)vb.onclick=()=>{p.v=true;persistLocal();cloudUpsert([p]);openDetail(p.id);};
   if(PROFILE){
-    let picked=(p.ratings&&p.ratings[PROFILE]&&p.ratings[PROFILE].score)||0;
+    const mine=(RATINGS[p.id]&&RATINGS[p.id][PROFILE])||{score:0};
+    let picked=mine.score||0;
     const starBtns=document.querySelectorAll("#r-stars button");
     starBtns.forEach(b=>{
       b.onclick=()=>{
@@ -772,15 +814,17 @@ function openDetail(id){
         starBtns.forEach(x=>x.classList.toggle("on",+x.dataset.n<=picked));
       };
     });
-    document.getElementById("r-save").onclick=()=>{
-      p.ratings=p.ratings||{};
-      p.ratings[PROFILE]={score:picked,take:document.getElementById("r-take").value.trim(),at:new Date().toISOString()};
-      persistLocal();cloudUpsert([p]);openDetail(p.id);
+    document.getElementById("r-save").onclick=async()=>{
+      const take=document.getElementById("r-take").value.trim();
+      RATINGS[p.id]=RATINGS[p.id]||{};
+      RATINGS[p.id][PROFILE]={score:picked,take};
+      await ratingUpsert(p.id,PROFILE,picked,take);
+      openDetail(p.id);
     };
   }
 }
 
-/* ---------- LIST ---------- */
+/* ---------- LIST (Near Me aware) ---------- */
 function ringFor(p){return pinColor(p);}
 function metaFor(p){
   const parts=[p.cuisine];
@@ -789,20 +833,31 @@ function metaFor(p){
     else if(ACC[a])parts.push(ACC[a].label);
   });
   if(p.fam)parts.push("Family");
-  const scores=Object.values(p.ratings||{}).map(r=>r.score).filter(Boolean);
+  if(p.resy)parts.push("Resy");
+  const r=RATINGS[p.id]||{};
+  const scores=Object.values(r).map(x=>x.score).filter(Boolean);
   if(scores.length)parts.push((scores.reduce((a,b)=>a+b,0)/scores.length).toFixed(1)+"★ us");
   return parts.filter(Boolean).join(" · ");
 }
 function openList(){
-  const vis=visiblePlaces().slice().sort((a,b)=>a.name.localeCompare(b.name));
+  let vis=visiblePlaces().slice();
+  let title;
+  if(userLoc){
+    vis.sort((a,b)=>distMi(userLoc.lat,userLoc.lng,a.lat,a.lng)-distMi(userLoc.lat,userLoc.lng,b.lat,b.lng));
+    title="Near you";
+  }else{
+    vis.sort((a,b)=>a.name.localeCompare(b.name));
+    title=`${vis.length} place${vis.length===1?"":"s"}`;
+  }
   let html;
   if(!vis.length){html=`<div class="empty"><h3>Nothing here yet</h3><p>Add a place, or clear filters to see everything.</p></div>`;}
-  else{html=vis.map(p=>`<div class="listitem" data-id="${p.id}">
+  else{html=vis.slice(0,100).map(p=>`<div class="listitem" data-id="${p.id}">
       <span class="li-ring" style="background:${ringFor(p)}"></span>
       <div class="li-main"><p class="li-name">${esc(p.name)}</p><p class="li-meta">${esc(metaFor(p))||"&nbsp;"}</p></div>
+      ${userLoc?`<span class="li-dist">${fmtDist(distMi(userLoc.lat,userLoc.lng,p.lat,p.lng))}</span>`:""}
     </div>`).join("");}
   document.getElementById("sheet-body").innerHTML=html;
-  openSheet(`${vis.length} place${vis.length===1?"":"s"}`);
+  openSheet(title);
   document.querySelectorAll(".listitem").forEach(el=>{
     el.onclick=()=>{const p=PLACES.find(x=>x.id===el.dataset.id);map.setView([p.lat,p.lng],13);openDetail(p.id);};
   });
@@ -811,7 +866,7 @@ function openList(){
 /* ---------- SEARCH ---------- */
 function openSearch(){
   document.getElementById("sheet-body").innerHTML=`
-    <label class="fld"><span>Search your atlas</span>
+    <label class="fld"><span>Search the feedbag</span>
       <input type="text" id="s-input" value="${esc(searchTerm)}" placeholder="Name, cuisine, city, note…" autocomplete="off"/></label>
     <div id="s-results"></div>`;
   openSheet("Search");
@@ -835,20 +890,13 @@ function openMenu(){
   document.getElementById("sheet-body").innerHTML=`
     <div class="menusec">
       <span class="fldlabel">Profile</span>
-      <label class="fld"><span>Your name (for ratings)</span>
+      <label class="fld"><span>Your name (signs your ratings)</span>
         <input type="text" id="m-name" value="${esc(PROFILE)}" placeholder="e.g. Ryan"/></label>
       <button class="ghost" id="m-savename">Save name</button>
     </div>
     <div class="menusec">
-      <span class="fldlabel">Shared atlas ${CLOUD?'<span style="color:var(--pick)">· connected</span>':""}</span>
-      ${CLOUD?`
-        <button class="primary" id="m-sync">Sync now</button>
-        <button class="ghost danger" id="m-disconnect">Disconnect shared atlas</button>`
-      :`
-        <p class="geohint" style="margin-bottom:10px;">Connect a free Supabase project so you and your wife share one live atlas. Full walkthrough in the Setup guide below.</p>
-        <label class="fld"><span>Supabase project URL</span><input type="text" id="m-url" placeholder="https://xxxx.supabase.co"/></label>
-        <label class="fld"><span>Anon public key</span><input type="password" id="m-key" placeholder="eyJhbGciOi…"/></label>
-        <button class="primary" id="m-connect">Connect &amp; merge</button>`}
+      <span class="fldlabel">Shared feedbag <span style="color:var(--pick)">· built-in</span></span>
+      <button class="primary" id="m-sync">Sync now</button>
       <div class="livestatus" id="m-cloudstatus"></div>
     </div>
     <div class="menusec">
@@ -857,69 +905,46 @@ function openMenu(){
       <div class="livestatus" id="m-status"></div>
     </div>
     <div class="menusec">
-      <span class="fldlabel">Backups</span>
-      <button class="ghost" id="m-export">Export my atlas (backup)</button>
-      <button class="ghost" id="m-import">Import from a backup file</button>
+      <span class="fldlabel">Backups & packs</span>
+      <button class="ghost" id="m-export">Export everything (backup)</button>
+      <button class="ghost" id="m-importmerge">Import & merge (city packs)</button>
+      <button class="ghost" id="m-importreplace">Import & replace (restore backup)</button>
       <input type="file" id="m-file" accept="application/json" style="display:none"/>
     </div>
     <div class="menusec">
       <span class="fldlabel">Starter data</span>
-      <button class="ghost" id="m-merge">Merge starter atlas (${SEED.length} places)</button>
-      <button class="ghost danger" id="m-reset">Reset everything to starter atlas</button>
+      <button class="ghost" id="m-merge">Merge starter set (${SEED.length} places)</button>
     </div>
     <div class="menusec">
       <span class="fldlabel">Help</span>
-      <button class="ghost" id="m-guide">Setup guide — install, share, sync</button>
+      <button class="ghost" id="m-guide">How Feedbag works</button>
     </div>
     <div class="seednote">
-      <b>Where your data lives:</b> on this device, saved automatically — plus in your shared Supabase table once connected. Starter data is best-effort from general knowledge; everything begins <b>unverified</b> until you confirm it.
+      <b>Everything is shared automatically</b> with everyone using this Feedbag. Removing a place archives it (nothing is ever hard-deleted). Starter data is best-effort — verify a place before you plan a night around it.
     </div>`;
-  openSheet("Atlas settings");
+  openSheet("Feedbag settings");
   document.getElementById("m-savename").onclick=()=>{
     PROFILE=document.getElementById("m-name").value.trim();
     localStorage.setItem(PROFKEY,PROFILE);
-    document.getElementById("m-cloudstatus").textContent=PROFILE?`Hi, ${PROFILE}. Your ratings will save under this name.`:"Name cleared.";
+    setStatus("m-cloudstatus",PROFILE?`Hi, ${PROFILE}. Your ratings save under this name.`:"Name cleared.");
   };
-  if(CLOUD){
-    document.getElementById("m-sync").onclick=async()=>{
-      setStatus("m-cloudstatus","Syncing…");
-      const ok=await cloudPullMerge();
-      setStatus("m-cloudstatus",ok?"Synced. Your atlas is up to date.":"Sync failed — check connection.");
-      renderMarkers();
-    };
-    document.getElementById("m-disconnect").onclick=()=>{
-      if(confirm("Disconnect the shared atlas? Data stays on this device and in Supabase; they just stop syncing.")){
-        CLOUD=null;localStorage.removeItem(CLOUDKEY);syncBadge();openMenu();
-      }
-    };
-  }else{
-    document.getElementById("m-connect").onclick=async()=>{
-      const url=document.getElementById("m-url").value.trim().replace(/\/+$/,"");
-      const key=document.getElementById("m-key").value.trim();
-      if(!/^https:\/\/.+\.supabase\.co$/.test(url)||!key){setStatus("m-cloudstatus","Enter a valid project URL and anon key.");return;}
-      CLOUD={url,key};
-      setStatus("m-cloudstatus","Connecting…");
-      const pulled=await cloudPullMerge();
-      if(pulled===false){CLOUD=null;setStatus("m-cloudstatus","Couldn't reach that project — check URL/key and that the places table exists (see Setup guide).");return;}
-      localStorage.setItem(CLOUDKEY,JSON.stringify(CLOUD));
-      const pushed=await cloudUpsert(PLACES);
-      setStatus("m-cloudstatus",pushed?"Connected. Atlas merged and shared — have your wife open this same site, set her name, and connect with the same URL + key.":"Connected for reading, but pushing failed — check the table policy in the Setup guide.");
-      syncBadge();renderMarkers();
-    };
-  }
+  document.getElementById("m-sync").onclick=async()=>{
+    setStatus("m-cloudstatus","Syncing…");
+    const ok=await cloudPullMerge();
+    setStatus("m-cloudstatus",ok?"Synced — you're up to date.":"Sync failed (connection?). Your data is safe on this device.");
+    renderMarkers();
+  };
   document.getElementById("m-wiki").onclick=wikidataPull;
   document.getElementById("m-export").onclick=exportData;
-  document.getElementById("m-import").onclick=()=>document.getElementById("m-file").click();
-  document.getElementById("m-file").onchange=importData;
+  let importMode="merge";
+  document.getElementById("m-importmerge").onclick=()=>{importMode="merge";document.getElementById("m-file").click();};
+  document.getElementById("m-importreplace").onclick=()=>{importMode="replace";document.getElementById("m-file").click();};
+  document.getElementById("m-file").onchange=e=>importData(e,importMode);
   document.getElementById("m-merge").onclick=()=>{
-    const added=mergeSeeds();persistLocal();if(added)cloudUpsert(PLACES.filter(p=>p.id.startsWith("s-")));
+    const added=mergeSeeds();persistLocal();
+    if(added)cloudUpsert(PLACES.filter(p=>p.id.startsWith("s-")));
     renderMarkers();
     setStatus("m-status",`Merged ${added} new place${added===1?"":"s"} from the starter set.`);
-  };
-  document.getElementById("m-reset").onclick=()=>{
-    if(confirm("Replace EVERYTHING on this device with the starter atlas? (A connected shared atlas is not wiped, and will merge back on next sync.)")){
-      PLACES=SEED.map(expandSeed);persistLocal();renderMarkers();closeSheet();
-    }
   };
   document.getElementById("m-guide").onclick=openGuide;
 }
@@ -932,88 +957,75 @@ function mergeSeeds(){
   return n;
 }
 
-/* ---------- SETUP GUIDE ---------- */
-const TABLE_SQL=`create table if not exists places (
-  id text primary key,
-  data jsonb not null,
-  updated_at timestamptz default now()
-);
-alter table places enable row level security;
-create policy "atlas anon access" on places
-  for all using (true) with check (true);`;
-
+/* ---------- GUIDE ---------- */
 function openGuide(){
   document.getElementById("sheet-body").innerHTML=`<div class="guide">
-    <h3>1 · Put Atlas online</h3>
+    <h3>What this is</h3>
+    <p>Feedbag is a shared map of restaurants worth traveling for — Michelin stars and Bib Gourmands, James Beard winners, Diners Drive-Ins &amp; Dives stops, local icons, and our own picks. One map, everyone's ratings.</p>
+    <h3>Getting started (that's it)</h3>
     <ol>
-      <li>Create a free account at <code>github.com</code> (from a computer is easiest).</li>
-      <li>New repository → name it anything (e.g. <code>atlas</code>) → <b>Public</b> → Create. (GitHub Pages is free on public repos; private repos need a paid plan.)</li>
-      <li>Click <b>uploading an existing file</b>, add this <code>index.html</code>, and Commit.</li>
-      <li>Repo <b>Settings → Pages</b> → under "Branch" choose <code>main</code> and Save.</li>
-      <li>In a minute your atlas is live at <code>yourname.github.io/atlas</code>. That URL is permanent — bookmark it.</li>
+      <li>Open this link. On iPhone: Safari → Share → <b>Add to Home Screen</b>. Android: Chrome → ⋮ → Add to Home screen.</li>
+      <li>Type your first name when asked. Done — everything syncs automatically.</li>
     </ol>
-    <p>The page is public but unlisted: only people with the link will realistically find it, and no personal data is in the file itself. Your places live in your browser and (optionally) your own Supabase project — not in the repo.</p>
-
-    <h3>2 · Install on your phones</h3>
+    <h3>Using it</h3>
     <ol>
-      <li><b>iPhone:</b> open the URL in Safari → Share button → <b>Add to Home Screen</b>.</li>
-      <li><b>Android:</b> open in Chrome → ⋮ menu → <b>Add to Home screen</b>.</li>
-      <li>It now launches full-screen like a native app.</li>
+      <li><b>Chips</b> filter by lens — Michelin, Bib Gourmand (great food, fair price), Beard, Triple-D, our picks, family-friendly, and On Resy (Amex Platinum credit).</li>
+      <li><b>Tap the counter</b> (bottom left) for a list — sorted by distance when location is on.</li>
+      <li><b>Tap a pin → give it feedbag</b>: 1–5 stars and a short take, signed with your name.</li>
+      <li><b>Add a place</b>: type the address, hit Find, tag the lenses. It appears for everyone.</li>
+      <li><b>Unverified</b> means the entry came from research, not a visit — check it before planning a night around it.</li>
     </ol>
-
-    <h3>3 · Share one atlas (the good part)</h3>
-    <p>Out of the box, each phone keeps its own data. To share one live dataset, connect a free Supabase database — about five minutes, once:</p>
-    <ol>
-      <li>Create a free account at <code>supabase.com</code> → New project (any name, any region, free tier).</li>
-      <li>In the project, open <b>SQL Editor</b>, paste the snippet below, and Run.</li>
-      <li>Go to <b>Settings → API</b>. Copy the <b>Project URL</b> and the <b>anon public</b> key.</li>
-      <li>Back in Atlas: ☰ menu → Shared atlas → paste both → <b>Connect &amp; merge</b>.</li>
-      <li>On your wife's phone: open the same site, set her name under Profile, and connect with the same URL + key. Done — one atlas, two phones.</li>
-    </ol>
-    <pre class="codeblock" id="g-sql">${TABLE_SQL}</pre>
-    <button class="copybtn" id="g-copy">Copy SQL</button>
-    <p><b>Honest security note:</b> the anon key + open policy means anyone who has both could read or edit your list of restaurants. For a two-person family atlas of public restaurants, that's a reasonable trade. Don't reuse this project for anything sensitive.</p>
-
-    <h3>4 · Profiles &amp; ratings</h3>
-    <p>Set a name in ☰ → Profile on each phone. Every place then gets an "Our takes" section — each of you rates 1–5 stars with a short take, side by side. The list view shows your combined average.</p>
-
-    <h3>5 · Keeping data fresh</h3>
-    <p><b>Wikidata pull</b> (☰ menu) imports restaurants tagged with Michelin awards from the open Wikidata database — a legitimate public API, freely licensed. Re-run it occasionally. Imports arrive unverified.</p>
-    <p><b>Verify as you go:</b> starter places are best-effort — before planning a day around one, tap it, check it in Maps, then "Mark as verified."</p>
-
-    <h3>6 · Backups</h3>
-    <p>☰ → Export downloads a JSON file of everything, ratings included. Do it before switching phones or clearing the browser. Import restores it anywhere.</p>
+    <h3>Trust notes</h3>
+    <p>Removing a place archives it rather than deleting — nothing is ever lost. Accolade data is a starting signal, not gospel; stars change yearly. The map improves as people verify and rate.</p>
+    <h3>For the admin (Ryan)</h3>
+    <p>App updates: replace <code>index.html</code> in the GitHub repo. Data lives in Supabase and survives all updates. City packs import via ☰ → Import &amp; merge. Weekly-ish: Export a backup.</p>
   </div>`;
-  openSheet("Setup guide");
-  document.getElementById("g-copy").onclick=()=>{
-    navigator.clipboard.writeText(TABLE_SQL).then(()=>{document.getElementById("g-copy").textContent="Copied ✓";});
-  };
+  openSheet("How Feedbag works");
 }
 
 /* ---------- SUPABASE SYNC ----------
-   Minimal REST client. Table: places(id text pk, data jsonb).
-   Strategy: pull-merge on connect/open/sync; targeted upsert or
-   delete on every change. Last write wins — fine for two people. */
-function loadCloudCfg(){try{const c=JSON.parse(localStorage.getItem(CLOUDKEY));return c&&c.url&&c.key?c:null;}catch(e){return null;}}
+   places(id text pk, data jsonb) + ratings(place_id, person, score, take).
+   Pull-merge on open/sync; targeted upserts on change; archive not delete. */
 function cloudHeaders(){return {apikey:CLOUD.key,Authorization:"Bearer "+CLOUD.key,"Content-Type":"application/json"};}
 async function cloudPullMerge(){
-  if(!CLOUD)return false;
   try{
     const r=await fetch(CLOUD.url+"/rest/v1/places?select=id,data",{headers:cloudHeaders()});
     if(!r.ok)return false;
     const rows=await r.json();
     const remote=new Map(rows.map(x=>[x.id,x.data]));
-    // remote is the shared truth; keep local places remote doesn't know yet (by name), then push them
     const remoteNames=new Set([...remote.values()].map(d=>(d.name||"").toLowerCase()));
     const localOnly=PLACES.filter(p=>!remote.has(p.id)&&!remoteNames.has(p.name.toLowerCase()));
-    PLACES=[...remote.values(),...localOnly];
+    // migrate any embedded v3 ratings before dropping local copies
+    const legacy=[];
+    PLACES.forEach(p=>{
+      if(p.ratings&&Object.keys(p.ratings).length){
+        Object.entries(p.ratings).forEach(([person,val])=>legacy.push({place_id:p.id,person,score:val.score||0,take:val.take||""}));
+        delete p.ratings;
+      }
+    });
+    PLACES=[...remote.values(),...localOnly].map(p=>({archived:false,resy:false,...p}));
     persistLocal();
     if(localOnly.length)cloudUpsert(localOnly);
+    if(legacy.length)ratingBulkUpsert(legacy);
+    await ratingsPull();
+    return true;
+  }catch(e){return false;}
+}
+async function ratingsPull(){
+  try{
+    const r=await fetch(CLOUD.url+"/rest/v1/ratings?select=place_id,person,score,take",{headers:cloudHeaders()});
+    if(!r.ok)return false;
+    const rows=await r.json();
+    RATINGS={};
+    rows.forEach(x=>{
+      RATINGS[x.place_id]=RATINGS[x.place_id]||{};
+      RATINGS[x.place_id][x.person]={score:x.score||0,take:x.take||""};
+    });
     return true;
   }catch(e){return false;}
 }
 async function cloudUpsert(recs){
-  if(!CLOUD||!recs||!recs.length)return false;
+  if(!recs||!recs.length)return false;
   try{
     const body=JSON.stringify(recs.map(p=>({id:p.id,data:p,updated_at:new Date().toISOString()})));
     const r=await fetch(CLOUD.url+"/rest/v1/places",{method:"POST",
@@ -1021,16 +1033,25 @@ async function cloudUpsert(recs){
     return r.ok;
   }catch(e){return false;}
 }
-async function cloudDelete(id){
-  if(!CLOUD)return false;
+async function ratingUpsert(place_id,person,score,take){
   try{
-    const r=await fetch(CLOUD.url+"/rest/v1/places?id=eq."+encodeURIComponent(id),{method:"DELETE",headers:cloudHeaders()});
+    const r=await fetch(CLOUD.url+"/rest/v1/ratings",{method:"POST",
+      headers:{...cloudHeaders(),Prefer:"resolution=merge-duplicates"},
+      body:JSON.stringify([{place_id,person,score,take,updated_at:new Date().toISOString()}])});
     return r.ok;
   }catch(e){return false;}
 }
-function syncBadge(){document.getElementById("btn-menu").classList.toggle("synced",!!CLOUD);}
+async function ratingBulkUpsert(rows){
+  try{
+    const r=await fetch(CLOUD.url+"/rest/v1/ratings",{method:"POST",
+      headers:{...cloudHeaders(),Prefer:"resolution=merge-duplicates"},
+      body:JSON.stringify(rows)});
+    return r.ok;
+  }catch(e){return false;}
+}
+function syncBadge(on){document.getElementById("btn-menu").classList.toggle("synced",!!on);}
 
-/* ---------- WIKIDATA LIVE PULL ---------- */
+/* ---------- WIKIDATA ---------- */
 async function wikidataPull(){
   const st=document.getElementById("m-status");
   if(st)st.textContent="Finding Michelin award entities on Wikidata…";
@@ -1061,46 +1082,64 @@ async function wikidataPull(){
       let stars=1;
       if(/(three|3)/.test(award))stars=3;else if(/(two|2)/.test(award))stars=2;
       const rec={id:uid(),name,cuisine:"",address:(b.countryLabel&&b.countryLabel.value)||"",
-        accolades:["michelin"],stars,fam:false,lat:+m[2],lng:+m[1],
-        note:"Imported from Wikidata ("+(b.awardLabel?b.awardLabel.value:"Michelin")+"). Star data may be historical — verify.",v:false,ratings:{}};
+        accolades:["michelin"],stars,fam:false,resy:false,lat:+m[2],lng:+m[1],
+        note:"Imported from Wikidata ("+(b.awardLabel?b.awardLabel.value:"Michelin")+"). Star data may be historical — verify.",v:false,archived:false};
       PLACES.push(rec);have.add(name.toLowerCase());added.push(rec);
     });
     persistLocal();if(added.length)cloudUpsert(added);
     renderMarkers();
-    if(st)st.textContent=added.length?`Added ${added.length} places from Wikidata. All marked unverified.`:"No new places — everything found was already in your atlas.";
+    if(st)st.textContent=added.length?`Added ${added.length} places from Wikidata. All marked unverified.`:"No new places — everything found was already in the feedbag.";
   }catch(e){
     if(st)st.textContent="Wikidata pull failed (connection or service busy). Try again in a minute.";
   }
 }
 
-/* ---------- BACKUP ---------- */
+/* ---------- BACKUP / PACKS ---------- */
 function exportData(){
-  const blob=new Blob([JSON.stringify(PLACES,null,2)],{type:"application/json"});
+  const payload={places:PLACES,ratings:RATINGS,exported:new Date().toISOString()};
+  const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});
   const url=URL.createObjectURL(blob);const a=document.createElement("a");
-  a.href=url;a.download=`atlas-backup-${new Date().toISOString().slice(0,10)}.json`;a.click();
+  a.href=url;a.download=`feedbag-backup-${new Date().toISOString().slice(0,10)}.json`;a.click();
   URL.revokeObjectURL(url);
 }
-function importData(e){
+function importData(e,mode){
   const file=e.target.files[0];if(!file)return;
   const rd=new FileReader();
   rd.onload=()=>{
     try{
-      const data=JSON.parse(rd.result);
-      if(!Array.isArray(data))throw 0;
-      const clean=data.filter(p=>p&&p.name&&typeof p.lat==="number"&&typeof p.lng==="number")
+      const raw=JSON.parse(rd.result);
+      const arr=Array.isArray(raw)?raw:(raw.places||[]);
+      if(!Array.isArray(arr))throw 0;
+      const clean=arr.filter(p=>p&&p.name&&typeof p.lat==="number"&&typeof p.lng==="number")
         .map(p=>({id:p.id||uid(),name:p.name,cuisine:p.cuisine||"",address:p.address||"",note:p.note||"",
-          accolades:Array.isArray(p.accolades)?p.accolades:[],stars:p.stars||0,fam:!!p.fam,lat:p.lat,lng:p.lng,v:!!p.v,ratings:p.ratings||{}}));
-      if(confirm(`Import ${clean.length} places? This replaces your current atlas on this device.`)){
-        PLACES=clean;persistLocal();cloudUpsert(PLACES);renderMarkers();closeSheet();
+          accolades:Array.isArray(p.accolades)?p.accolades:[],stars:p.stars||0,fam:!!p.fam,resy:!!p.resy,
+          lat:p.lat,lng:p.lng,v:!!p.v,archived:!!p.archived}));
+      if(mode==="merge"){
+        const have=new Set(PLACES.map(p=>p.name.toLowerCase()));
+        const fresh=clean.filter(p=>!have.has(p.name.toLowerCase()));
+        if(confirm(`Merge ${fresh.length} new place${fresh.length===1?"":"s"} into the shared feedbag?`)){
+          PLACES.push(...fresh);persistLocal();cloudUpsert(fresh);renderMarkers();closeSheet();
+        }
+      }else{
+        if(confirm(`REPLACE this device's data with ${clean.length} places from the backup, and push to the shared feedbag?`)){
+          PLACES=clean;persistLocal();cloudUpsert(PLACES);renderMarkers();closeSheet();
+        }
       }
-    }catch(err){alert("That file didn't look like an Atlas backup.");}
+    }catch(err){alert("That file didn't look like a Feedbag backup or pack.");}
   };
   rd.readAsText(file);
+  e.target.value="";
 }
 
 /* ---------- LOCATE + WIRING ---------- */
-document.getElementById("btn-locate").onclick=()=>{if(navigator.geolocation)map.locate({setView:true,maxZoom:13});};
-map.on("locationerror",()=>{});
+function tryLocate(fly){
+  if(!navigator.geolocation)return;
+  navigator.geolocation.getCurrentPosition(pos=>{
+    userLoc={lat:pos.coords.latitude,lng:pos.coords.longitude};
+    if(fly)map.setView([userLoc.lat,userLoc.lng],11);
+  },()=>{},{enableHighAccuracy:false,timeout:8000,maximumAge:300000});
+}
+document.getElementById("btn-locate").onclick=()=>tryLocate(true);
 document.getElementById("btn-add").onclick=()=>openForm(null);
 document.getElementById("btn-menu").onclick=openMenu;
 document.getElementById("btn-search").onclick=openSearch;
@@ -1111,7 +1150,7 @@ document.getElementById("count-pill").onkeydown=e=>{if(e.key==="Enter")openList(
 function loadLocal(){
   try{
     const raw=localStorage.getItem(KEY);
-    if(raw){const d=JSON.parse(raw);if(Array.isArray(d))return d.map(p=>({ratings:{},...p}));}
+    if(raw){const d=JSON.parse(raw);if(Array.isArray(d))return d.map(p=>({archived:false,resy:false,...p}));}
   }catch(e){}
   return SEED.map(expandSeed);
 }
@@ -1124,9 +1163,10 @@ function esc(s){return (s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">"
 /* ---------- GO ---------- */
 renderFilters();
 renderMarkers();
-syncBadge();
-if(CLOUD){cloudPullMerge().then(ok=>{if(ok)renderMarkers();});}
+syncBadge(true);
+tryLocate(false);
+cloudPullMerge().then(ok=>{syncBadge(ok);renderMarkers();});
+if(!PROFILE){setTimeout(openWelcome,600);}
 </script>
 </body>
 </html>
-
