@@ -195,6 +195,7 @@ const FAM_COLOR = cssv("--family"), RESY_COLOR = cssv("--resy");
 function cssv(v){ return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); }
 
 const KEY="aixis-atlas-v2", PROFKEY="aixis-atlas-profile";
+const ADMINS=["ryan"]; // lowercase first names that see admin tools
 
 /* ---- SEED DATASET ----
    [name, cuisine, lat, lng, city, accCodes, family(0/1), note]
@@ -649,9 +650,13 @@ function openWelcome(){
     <button class="primary" id="w-go">Start exploring</button>
     <div class="seednote">Your name signs the ratings you leave ("give it feedbag"). Everything else is shared automatically — nothing to set up.</div>`;
   openSheet("Welcome");
-  document.getElementById("w-go").onclick=()=>{
+  document.getElementById("w-go").onclick=async()=>{
     const n=document.getElementById("w-name").value.trim();
     if(!n){document.getElementById("w-name").focus();return;}
+    const btn=document.getElementById("w-go");btn.disabled=true;btn.textContent="Checking name…";
+    const res=await claimName(n);
+    btn.disabled=false;btn.textContent="Start exploring";
+    if(!res.ok&&res.reason==="taken"){alert(CLAIM_MSG.taken(n));return;}
     PROFILE=n;localStorage.setItem(PROFKEY,n);closeSheet();
   };
 }
@@ -887,6 +892,20 @@ function openSearch(){
 
 /* ---------- MENU ---------- */
 function openMenu(){
+  const isAdmin=CLAIM_OK&&ADMINS.includes((PROFILE||"").trim().toLowerCase());
+  const adminHTML=isAdmin?`
+    <div class="menusec">
+      <span class="fldlabel">Admin · live sources</span>
+      <button class="ghost" id="m-wiki">Pull Michelin data from Wikidata</button>
+      <div class="livestatus" id="m-status"></div>
+    </div>
+    <div class="menusec">
+      <span class="fldlabel">Admin · packs & restore</span>
+      <button class="ghost" id="m-importmerge">Import & merge (city packs)</button>
+      <button class="ghost" id="m-importreplace">Import & replace (restore backup)</button>
+      <input type="file" id="m-file" accept="application/json" style="display:none"/>
+      <button class="ghost" id="m-merge">Merge starter set (${SEED.length} places)</button>
+    </div>`:"";
   document.getElementById("sheet-body").innerHTML=`
     <div class="menusec">
       <span class="fldlabel">Profile</span>
@@ -895,38 +914,32 @@ function openMenu(){
       <button class="ghost" id="m-savename">Save name</button>
     </div>
     <div class="menusec">
-      <span class="fldlabel">Shared feedbag <span style="color:var(--pick)">· built-in</span></span>
+      <span class="fldlabel">Shared feedbag <span style="color:var(--pick)">· automatic</span></span>
       <button class="primary" id="m-sync">Sync now</button>
       <div class="livestatus" id="m-cloudstatus"></div>
     </div>
     <div class="menusec">
-      <span class="fldlabel">Live sources</span>
-      <button class="ghost" id="m-wiki">Pull Michelin data from Wikidata</button>
-      <div class="livestatus" id="m-status"></div>
+      <span class="fldlabel">Backup</span>
+      <button class="ghost" id="m-export">Export everything (JSON backup)</button>
     </div>
-    <div class="menusec">
-      <span class="fldlabel">Backups & packs</span>
-      <button class="ghost" id="m-export">Export everything (backup)</button>
-      <button class="ghost" id="m-importmerge">Import & merge (city packs)</button>
-      <button class="ghost" id="m-importreplace">Import & replace (restore backup)</button>
-      <input type="file" id="m-file" accept="application/json" style="display:none"/>
-    </div>
-    <div class="menusec">
-      <span class="fldlabel">Starter data</span>
-      <button class="ghost" id="m-merge">Merge starter set (${SEED.length} places)</button>
-    </div>
+    ${adminHTML}
     <div class="menusec">
       <span class="fldlabel">Help</span>
       <button class="ghost" id="m-guide">How Feedbag works</button>
     </div>
     <div class="seednote">
-      <b>Everything is shared automatically</b> with everyone using this Feedbag. Removing a place archives it (nothing is ever hard-deleted). Starter data is best-effort — verify a place before you plan a night around it.
+      <b>Everything is shared automatically</b> with everyone using this Feedbag. Removing a place archives it — nothing is ever hard-deleted. Data sources and pack tools live under Admin.
     </div>`;
   openSheet("Feedbag settings");
-  document.getElementById("m-savename").onclick=()=>{
-    PROFILE=document.getElementById("m-name").value.trim();
-    localStorage.setItem(PROFKEY,PROFILE);
-    setStatus("m-cloudstatus",PROFILE?`Hi, ${PROFILE}. Your ratings save under this name.`:"Name cleared.");
+  document.getElementById("m-savename").onclick=async()=>{
+    const n=document.getElementById("m-name").value.trim();
+    if(!n){PROFILE="";CLAIM_OK=false;localStorage.setItem(PROFKEY,"");setStatus("m-cloudstatus","Name cleared.");return;}
+    setStatus("m-cloudstatus","Checking name…");
+    const res=await claimName(n);
+    if(!res.ok&&res.reason==="taken"){setStatus("m-cloudstatus",CLAIM_MSG.taken(n));return;}
+    PROFILE=n;localStorage.setItem(PROFKEY,n);
+    setStatus("m-cloudstatus",res.ok?`Hi, ${n}. This name is yours — ratings save under it.`:CLAIM_MSG.offline());
+    openMenu();
   };
   document.getElementById("m-sync").onclick=async()=>{
     setStatus("m-cloudstatus","Syncing…");
@@ -934,19 +947,21 @@ function openMenu(){
     setStatus("m-cloudstatus",ok?"Synced — you're up to date.":"Sync failed (connection?). Your data is safe on this device.");
     renderMarkers();
   };
-  document.getElementById("m-wiki").onclick=wikidataPull;
   document.getElementById("m-export").onclick=exportData;
-  let importMode="merge";
-  document.getElementById("m-importmerge").onclick=()=>{importMode="merge";document.getElementById("m-file").click();};
-  document.getElementById("m-importreplace").onclick=()=>{importMode="replace";document.getElementById("m-file").click();};
-  document.getElementById("m-file").onchange=e=>importData(e,importMode);
-  document.getElementById("m-merge").onclick=()=>{
-    const added=mergeSeeds();persistLocal();
-    if(added)cloudUpsert(PLACES.filter(p=>p.id.startsWith("s-")));
-    renderMarkers();
-    setStatus("m-status",`Merged ${added} new place${added===1?"":"s"} from the starter set.`);
-  };
   document.getElementById("m-guide").onclick=openGuide;
+  if(isAdmin){
+    document.getElementById("m-wiki").onclick=wikidataPull;
+    let importMode="merge";
+    document.getElementById("m-importmerge").onclick=()=>{importMode="merge";document.getElementById("m-file").click();};
+    document.getElementById("m-importreplace").onclick=()=>{importMode="replace";document.getElementById("m-file").click();};
+    document.getElementById("m-file").onchange=e=>importData(e,importMode);
+    document.getElementById("m-merge").onclick=()=>{
+      const added=mergeSeeds();persistLocal();
+      if(added)cloudUpsert(PLACES.filter(p=>p.id.startsWith("s-")));
+      renderMarkers();
+      setStatus("m-status",`Merged ${added} new place${added===1?"":"s"} from the starter set.`);
+    };
+  }
 }
 function setStatus(id,msg){const el=document.getElementById(id);if(el)el.textContent=msg;}
 
@@ -1050,6 +1065,37 @@ async function ratingBulkUpsert(rows){
   }catch(e){return false;}
 }
 function syncBadge(on){document.getElementById("btn-menu").classList.toggle("synced",!!on);}
+
+/* ---------- NAME CLAIMS (one person per name) ----------
+   First device to claim a name stores a secret token in the
+   profiles table. Same name + different device = rejected.
+   Honest limit: this prevents collisions and casual admin
+   impersonation, not a determined attacker with dev tools. */
+let CLAIM_OK=false;
+function devToken(){
+  let t=localStorage.getItem("feedbag-token");
+  if(!t){t=uid()+uid()+uid();localStorage.setItem("feedbag-token",t);}
+  return t;
+}
+async function claimName(name){
+  try{
+    const q=await fetch(CLOUD.url+"/rest/v1/profiles?person=eq."+encodeURIComponent(name)+"&select=person,token",{headers:cloudHeaders()});
+    if(!q.ok)return {ok:false,reason:"offline"};
+    const rows=await q.json();
+    if(rows.length){
+      if(rows[0].token===devToken()){CLAIM_OK=true;return {ok:true};}
+      return {ok:false,reason:"taken"};
+    }
+    const ins=await fetch(CLOUD.url+"/rest/v1/profiles",{method:"POST",headers:cloudHeaders(),
+      body:JSON.stringify([{person:name,token:devToken()}])});
+    if(ins.ok){CLAIM_OK=true;return {ok:true};}
+    return {ok:false,reason:"taken"};
+  }catch(e){return {ok:false,reason:"offline"};}
+}
+const CLAIM_MSG={
+  taken:n=>`"${n}" is already claimed on another device. Add a last initial (e.g. ${n} B.) — or if this is you on a new phone, ask Ryan to free the name.`,
+  offline:()=>"Couldn't verify the name right now (connection). Saved locally — it will verify on next sync."
+};
 
 /* ---------- WIKIDATA ---------- */
 async function wikidataPull(){
@@ -1166,7 +1212,7 @@ renderMarkers();
 syncBadge(true);
 tryLocate(false);
 cloudPullMerge().then(ok=>{syncBadge(ok);renderMarkers();});
-if(!PROFILE){setTimeout(openWelcome,600);}
+if(!PROFILE){setTimeout(openWelcome,600);}else{claimName(PROFILE);}
 </script>
 </body>
 </html>
