@@ -1,0 +1,1131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Atlas" />
+<meta name="theme-color" content="#211C17" />
+<title>Atlas — a table worth the trip</title>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Hanken+Grotesk:wght@400;500;600&display=swap" rel="stylesheet" />
+
+<style>
+  :root{
+    --ink:#211C17; --ink-soft:#5A5147;
+    --paper:#FAF7F1; --surface:#FFFFFF;
+    --hair:#E5DDD0; --hair-strong:#D8CEBD;
+    --michelin:#9E2B25; --beard:#B0873E; --ddd:#C25A2B; --pick:#3B6B52; --family:#4E6E8E;
+    --shadow:0 6px 24px rgba(33,28,23,.14); --shadow-lg:0 12px 40px rgba(33,28,23,.22);
+  }
+  *{box-sizing:border-box;} html,body{margin:0;padding:0;height:100%;}
+  body{font-family:"Hanken Grotesk",system-ui,-apple-system,sans-serif;color:var(--ink);background:var(--paper);-webkit-font-smoothing:antialiased;overflow:hidden;}
+  #map{position:absolute;inset:0;z-index:1;background:#EDE7DB;}
+  .leaflet-control-attribution{font-family:inherit;font-size:10px;}
+
+  header{position:absolute;top:0;left:0;right:0;z-index:600;padding:calc(env(safe-area-inset-top) + 10px) 12px 10px;
+    background:linear-gradient(180deg, rgba(250,247,241,.98) 0%, rgba(250,247,241,.92) 70%, rgba(250,247,241,0) 100%);pointer-events:none;}
+  .bar{display:flex;align-items:center;gap:10px;pointer-events:auto;}
+  .brand{display:flex;align-items:baseline;gap:8px;flex:1;min-width:0;}
+  .brand h1{font-family:"Fraunces",serif;font-weight:600;font-size:22px;letter-spacing:-.01em;margin:0;line-height:1;white-space:nowrap;}
+  .brand .tag{font-size:11px;color:var(--ink-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .iconbtn{pointer-events:auto;border:1px solid var(--hair-strong);background:var(--surface);color:var(--ink);width:40px;height:40px;border-radius:11px;display:grid;place-items:center;cursor:pointer;box-shadow:var(--shadow);flex:none;}
+  .iconbtn:active{transform:scale(.95);}
+  .iconbtn svg{width:19px;height:19px;stroke:var(--ink);stroke-width:1.8;fill:none;}
+  .syncdot{position:absolute;top:7px;right:7px;width:8px;height:8px;border-radius:50%;background:var(--pick);display:none;}
+  .iconbtn{position:relative;}
+  .iconbtn.synced .syncdot{display:block;}
+
+  .filters{display:flex;gap:7px;margin-top:10px;overflow-x:auto;pointer-events:auto;padding-bottom:2px;scrollbar-width:none;-webkit-overflow-scrolling:touch;}
+  .filters::-webkit-scrollbar{display:none;}
+  .chip{flex:none;border:1px solid var(--hair-strong);background:var(--surface);border-radius:999px;padding:7px 13px 7px 11px;font-size:13px;font-weight:500;display:flex;align-items:center;gap:7px;cursor:pointer;color:var(--ink-soft);box-shadow:0 1px 3px rgba(33,28,23,.06);white-space:nowrap;font-family:inherit;}
+  .chip .dot{width:9px;height:9px;border-radius:50%;flex:none;}
+  .chip[aria-pressed="true"]{color:var(--ink);border-color:var(--ink);}
+  .chip:active{transform:scale(.97);}
+
+  .fabwrap{position:absolute;z-index:600;right:14px;bottom:calc(env(safe-area-inset-bottom) + 16px);display:flex;flex-direction:column;gap:10px;align-items:flex-end;}
+  .fab{border:none;border-radius:16px;cursor:pointer;box-shadow:var(--shadow-lg);display:flex;align-items:center;gap:8px;font-family:inherit;}
+  .fab-add{background:var(--ink);color:var(--paper);padding:14px 18px;font-size:15px;font-weight:600;}
+  .fab-add svg{width:18px;height:18px;stroke:var(--paper);stroke-width:2.2;fill:none;}
+  .fab-round{background:var(--surface);color:var(--ink);width:46px;height:46px;justify-content:center;border:1px solid var(--hair-strong);}
+  .fab-round svg{width:20px;height:20px;stroke:var(--ink);stroke-width:1.9;fill:none;}
+  .fab:active{transform:scale(.95);}
+
+  .count-pill{position:absolute;z-index:600;left:14px;bottom:calc(env(safe-area-inset-bottom) + 18px);background:var(--surface);border:1px solid var(--hair-strong);border-radius:999px;padding:8px 14px;font-size:12px;font-weight:600;color:var(--ink-soft);box-shadow:var(--shadow);cursor:pointer;}
+  .count-pill b{color:var(--ink);}
+
+  .pin{width:26px;height:26px;border-radius:50% 50% 50% 2px;transform:rotate(45deg);box-shadow:0 3px 8px rgba(33,28,23,.35);border:2.5px solid #fff;display:grid;place-items:center;}
+  .pin .core{transform:rotate(-45deg);font-size:9px;line-height:1;color:#fff;font-weight:700;letter-spacing:-1px;}
+  .pin .core:empty{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.92);}
+
+  .scrim{position:absolute;inset:0;z-index:900;background:rgba(33,28,23,.32);opacity:0;pointer-events:none;transition:opacity .22s ease;}
+  .scrim.on{opacity:1;pointer-events:auto;}
+  .sheet{position:absolute;z-index:1000;left:0;right:0;bottom:0;background:var(--surface);border-radius:22px 22px 0 0;box-shadow:0 -10px 40px rgba(33,28,23,.25);transform:translateY(105%);transition:transform .28s cubic-bezier(.32,.72,0,1);max-height:88vh;display:flex;flex-direction:column;padding-bottom:env(safe-area-inset-bottom);}
+  .sheet.on{transform:translateY(0);}
+  .grab{width:38px;height:4px;border-radius:99px;background:var(--hair-strong);margin:10px auto 4px;flex:none;}
+  .sheet-head{display:flex;align-items:center;gap:12px;padding:6px 18px 14px;border-bottom:1px solid var(--hair);}
+  .sheet-head h2{font-family:"Fraunces",serif;font-weight:600;font-size:21px;margin:0;flex:1;letter-spacing:-.01em;}
+  .sheet-body{overflow-y:auto;padding:16px 18px 22px;-webkit-overflow-scrolling:touch;}
+  .closebtn{border:none;background:var(--paper);width:32px;height:32px;border-radius:9px;cursor:pointer;font-size:16px;color:var(--ink-soft);}
+
+  label.fld{display:block;margin:0 0 15px;}
+  label.fld > span, .fldlabel{display:block;font-size:12px;font-weight:600;color:var(--ink-soft);margin-bottom:6px;letter-spacing:.02em;text-transform:uppercase;}
+  input[type=text],input[type=password],textarea,select{width:100%;font-family:inherit;font-size:15px;color:var(--ink);border:1px solid var(--hair-strong);border-radius:11px;padding:12px 13px;background:var(--paper);}
+  input:focus,textarea:focus,select:focus{outline:2px solid var(--ink);outline-offset:1px;border-color:var(--ink);}
+  textarea{resize:vertical;min-height:64px;line-height:1.45;}
+  .addrrow{display:flex;gap:8px;} .addrrow input{flex:1;}
+  .geobtn{flex:none;border:1px solid var(--ink);background:var(--ink);color:var(--paper);border-radius:11px;padding:0 15px;font-family:inherit;font-weight:600;font-size:13px;cursor:pointer;}
+  .geobtn:disabled{opacity:.5;}
+  .geohint{font-size:12px;margin-top:6px;color:var(--ink-soft);min-height:16px;}
+  .geohint.ok{color:var(--pick);} .geohint.err{color:var(--michelin);}
+
+  .accgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+  .accopt{position:relative;display:flex;align-items:center;gap:9px;border:1px solid var(--hair-strong);border-radius:11px;padding:11px 12px;cursor:pointer;background:var(--paper);font-size:14px;font-weight:500;}
+  .accopt .dot{width:11px;height:11px;border-radius:50%;flex:none;}
+  .accopt input{position:absolute;opacity:0;pointer-events:none;}
+  .accopt[data-on="true"]{border-color:var(--ink);background:var(--surface);box-shadow:inset 0 0 0 1px var(--ink);}
+
+  .primary{width:100%;border:none;background:var(--ink);color:var(--paper);font-family:inherit;font-weight:600;font-size:16px;padding:15px;border-radius:13px;cursor:pointer;margin-top:4px;}
+  .primary:active{transform:scale(.99);}
+  .primary:disabled{opacity:.5;}
+  .ghost{width:100%;border:1px solid var(--hair-strong);background:transparent;color:var(--ink-soft);font-family:inherit;font-weight:500;font-size:14px;padding:12px;border-radius:11px;cursor:pointer;margin-top:10px;}
+  .danger{color:var(--michelin);border-color:transparent;}
+
+  .accbadges{display:flex;flex-wrap:wrap;gap:7px;margin:2px 0 14px;}
+  .badge{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;border-radius:999px;padding:5px 11px;color:#fff;}
+  .detail-cuisine{font-size:14px;color:var(--ink-soft);margin:0 0 14px;}
+  .detail-note{font-size:15px;line-height:1.55;color:var(--ink);white-space:pre-wrap;margin:0 0 18px;}
+  .detail-addr{font-size:13px;color:var(--ink-soft);line-height:1.4;margin:0 0 6px;display:flex;gap:8px;align-items:flex-start;}
+  .detail-addr svg{width:15px;height:15px;stroke:var(--ink-soft);stroke-width:1.7;fill:none;flex:none;margin-top:2px;}
+  .verifyrow{font-size:12px;color:var(--beard);margin:0 0 16px;font-weight:500;}
+  .row2{display:flex;gap:10px;} .row2 button{flex:1;}
+  .maplink{display:block;text-align:center;text-decoration:none;color:var(--ink);border:1px solid var(--hair-strong);border-radius:11px;padding:12px;font-weight:600;font-size:14px;margin-top:10px;}
+
+  /* ratings */
+  .ratings{border-top:1px solid var(--hair);margin-top:18px;padding-top:16px;}
+  .rating-row{display:flex;align-items:flex-start;gap:10px;margin-bottom:12px;}
+  .rating-who{font-weight:600;font-size:13px;min-width:64px;padding-top:2px;}
+  .rating-stars{color:var(--beard);font-size:15px;letter-spacing:2px;}
+  .rating-take{font-size:14px;color:var(--ink);line-height:1.45;margin-top:3px;}
+  .starpick{display:flex;gap:6px;margin:6px 0 10px;}
+  .starpick button{border:none;background:none;font-size:26px;cursor:pointer;color:var(--hair-strong);padding:2px;}
+  .starpick button.on{color:var(--beard);}
+
+  .listitem{display:flex;gap:12px;padding:13px 2px;border-bottom:1px solid var(--hair);cursor:pointer;align-items:flex-start;}
+  .listitem:last-child{border-bottom:none;}
+  .li-ring{width:14px;height:14px;border-radius:50%;flex:none;margin-top:3px;}
+  .li-main{flex:1;min-width:0;}
+  .li-name{font-family:"Fraunces",serif;font-weight:600;font-size:16px;margin:0 0 2px;}
+  .li-meta{font-size:12px;color:var(--ink-soft);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .empty{text-align:center;padding:36px 20px;color:var(--ink-soft);}
+  .empty h3{font-family:"Fraunces",serif;font-weight:500;color:var(--ink);font-size:19px;margin:0 0 8px;}
+  .empty p{font-size:14px;line-height:1.5;margin:0;}
+  .seednote{background:var(--paper);border:1px solid var(--hair);border-radius:11px;padding:12px 13px;font-size:12.5px;line-height:1.5;color:var(--ink-soft);margin-top:14px;}
+  .seednote b{color:var(--ink);}
+  .livestatus{font-size:13px;color:var(--ink-soft);margin-top:10px;min-height:18px;}
+
+  /* guide */
+  .guide h3{font-family:"Fraunces",serif;font-weight:600;font-size:17px;margin:22px 0 8px;}
+  .guide h3:first-child{margin-top:0;}
+  .guide p, .guide li{font-size:14px;line-height:1.55;color:var(--ink);}
+  .guide ol{padding-left:20px;margin:6px 0 12px;}
+  .guide li{margin-bottom:7px;}
+  .guide code{background:var(--paper);border:1px solid var(--hair);border-radius:5px;padding:1px 5px;font-size:12.5px;}
+  pre.codeblock{background:var(--ink);color:var(--paper);border-radius:11px;padding:13px;font-size:11.5px;line-height:1.5;overflow-x:auto;white-space:pre;margin:8px 0 4px;}
+  .copybtn{border:1px solid var(--hair-strong);background:var(--surface);border-radius:8px;padding:6px 12px;font-size:12px;font-weight:600;font-family:inherit;cursor:pointer;color:var(--ink-soft);margin-bottom:14px;}
+
+  .menusec{border-top:1px solid var(--hair);margin-top:18px;padding-top:16px;}
+  .menusec:first-child{border-top:none;margin-top:0;padding-top:0;}
+
+  @media (prefers-reduced-motion:reduce){.sheet,.scrim{transition:none;}}
+</style>
+</head>
+<body>
+
+<div id="map"></div>
+
+<header>
+  <div class="bar">
+    <div class="brand"><h1>Atlas</h1><span class="tag">a table worth the trip</span></div>
+    <button class="iconbtn" id="btn-search" aria-label="Search places"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></button>
+    <button class="iconbtn" id="btn-menu" aria-label="Data and settings"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span class="syncdot"></span></button>
+  </div>
+  <div class="filters" id="filters"></div>
+</header>
+
+<div class="count-pill" id="count-pill" role="button" tabindex="0"><b id="count-n">0</b> places</div>
+
+<div class="fabwrap">
+  <button class="fab fab-round" id="btn-locate" aria-label="Center on my location"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg></button>
+  <button class="fab fab-add" id="btn-add"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg> Add a place</button>
+</div>
+
+<div class="scrim" id="scrim"></div>
+<section class="sheet" id="sheet" aria-modal="true" role="dialog">
+  <div class="grab"></div>
+  <div class="sheet-head"><h2 id="sheet-title">Atlas</h2><button class="closebtn" id="btn-close" aria-label="Close">✕</button></div>
+  <div class="sheet-body" id="sheet-body"></div>
+</section>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+/* ============================================================
+   Atlas v3 — personal curated map of acclaimed restaurants.
+   New in v3:
+   • Shared atlas: optional Supabase sync so two (or more)
+     phones share one live dataset. Works device-only otherwise.
+   • Profiles + per-person star ratings and takes.
+   • Full setup guide inside the app (menu → Setup guide).
+   All seed data is best-effort from general knowledge — every
+   place starts UNVERIFIED until you confirm it yourself.
+   ============================================================ */
+
+const ACC = {
+  michelin:{ label:"Michelin", color:cssv("--michelin") },
+  beard:{ label:"James Beard", color:cssv("--beard") },
+  ddd:{ label:"Triple-D", color:cssv("--ddd") },
+  pick:{ label:"My pick", color:cssv("--pick") },
+};
+const FAM_COLOR = cssv("--family");
+function cssv(v){ return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); }
+
+const KEY="aixis-atlas-v2", PROFKEY="aixis-atlas-profile", CLOUDKEY="aixis-atlas-cloud";
+
+/* ---- SEED DATASET ----
+   [name, cuisine, lat, lng, city, accCodes, family(0/1), note]
+   accCodes: M1/M2/M3 (Michelin + stars), JB, DDD, PICK.
+   Coordinates approximate (neighborhood-level). Verify before you drive. */
+const SEED=[
+/* ---------- COPENHAGEN + SCANDINAVIA ---------- */
+["Geranium","New Nordic",55.7057,12.5722,"Copenhagen, Denmark","M3",0,"Top floor of the national stadium."],
+["Alchemist","Avant-garde",55.6910,12.6110,"Copenhagen, Denmark","M2",0,"50-course 'holistic cuisine' theater. Books out instantly."],
+["noma","New Nordic",55.6837,12.6103,"Copenhagen, Denmark","M3",0,"Format in transition — check current status before planning around it."],
+["Jordnær","Seafood tasting",55.7460,12.5480,"Gentofte, Denmark","M2",0,"Short train ride north of Copenhagen."],
+["Kadeau","Bornholm Nordic",55.6717,12.5936,"Copenhagen, Denmark","M2",0,"Christianshavn. Bornholm island larder."],
+["Kong Hans Kælder","Classic French",55.6784,12.5818,"Copenhagen, Denmark","M1",0,"Gothic cellar, old-school luxury."],
+["Marchal","Franco-Danish",55.6797,12.5823,"Copenhagen, Denmark","M1",0,"Hotel d'Angleterre, on Kongens Nytorv."],
+["Gasoline Grill","Burgers",55.6807,12.5860,"Copenhagen, Denmark","PICK",1,"Cult burger stand in a gas station. Easy with kids."],
+["Mother","Sourdough pizza",55.6676,12.5648,"Copenhagen, Denmark","PICK",1,"Kødbyen (Meatpacking). Casual, loud, great with kids."],
+["Frantzén","Nordic-Japanese",59.3326,18.0577,"Stockholm, Sweden","M3",0,""],
+["Maaemo","New Nordic",59.9075,10.7600,"Oslo, Norway","M3",0,""],
+/* ---------- BALTIC / POLAND / LITHUANIA ---------- */
+["Bottiglieria 1881","Modern Polish",50.0490,19.9450,"Kraków, Poland","M2",0,"Poland's first two-star."],
+["Nuta","Creative",52.2430,21.0110,"Warsaw, Poland","M1",0,""],
+["Nineteen18","Modern Lithuanian",54.6780,25.2870,"Vilnius, Lithuania","M1",0,"Near your Curonian Spit route."],
+/* ---------- PARIS + FRANCE ---------- */
+["Arpège","Vegetable-forward French",48.8557,2.3170,"Paris, France","M3",0,"Alain Passard."],
+["Pierre Gagnaire","Modern French",48.8721,2.3005,"Paris, France","M3",0,""],
+["Epicure","French",48.8718,2.3147,"Paris, France","M3",0,"Le Bristol hotel."],
+["Le Cinq","French",48.8688,2.3007,"Paris, France","M3",0,"Four Seasons George V."],
+["Plénitude","French",48.8593,2.3420,"Paris, France","M3",0,"Cheval Blanc, view over the Seine."],
+["Kei","French-Japanese",48.8639,2.3419,"Paris, France","M3",0,""],
+["L'Ambroisie","Classic French",48.8554,2.3654,"Paris, France","M3",0,"Place des Vosges."],
+["Pavillon Ledoyen (Alléno)","French",48.8662,2.3170,"Paris, France","M3",0,""],
+["Septime","Modern bistro",48.8534,2.3805,"Paris, France","M1",0,"The hardest casual booking in Paris."],
+["Le Jules Verne","French",48.8583,2.2945,"Paris, France","M1",0,"Inside the Eiffel Tower — kids love the ride up."],
+["Mirazur","Riviera tasting",43.7822,7.5262,"Menton, France","M3",0,"Border of Italy, over the sea."],
+["Maison Troisgros","French",46.0027,3.9720,"Ouches, France","M3",0,"Legendary family, countryside setting."],
+["Georges Blanc","French",46.2202,4.9902,"Vonnas, France","M3",0,""],
+["La Vague d'Or","Provençal",43.2727,6.6407,"Saint-Tropez, France","M3",0,""],
+/* ---------- SPAIN + PORTUGAL ---------- */
+["El Celler de Can Roca","Catalan avant-garde",41.9931,2.8080,"Girona, Spain","M3",0,"The Roca brothers."],
+["Arzak","New Basque",43.3204,-1.9550,"San Sebastián, Spain","M3",0,""],
+["Akelarre","Basque",43.3130,-2.0110,"San Sebastián, Spain","M3",0,"Clifftop over the Atlantic."],
+["Martín Berasategui","Basque",43.2680,-2.0230,"Lasarte-Oria, Spain","M3",0,""],
+["Mugaritz","Avant-garde",43.2724,-1.9180,"Errenteria, Spain","M2",0,""],
+["Asador Etxebarri","Wood-fire grill",43.1420,-2.5960,"Axpe, Spain","M1",0,"Everything over fire. Worth the drive into the hills."],
+["DiverXO","Avant-garde",40.4580,-3.6860,"Madrid, Spain","M3",0,"Dabiz Muñoz."],
+["Quique Dacosta","Avant-garde",38.8500,0.1120,"Dénia, Spain","M3",0,""],
+["Disfrutar","Creative",41.3880,2.1560,"Barcelona, Spain","M3",0,"elBulli alumni."],
+["Elkano","Grilled seafood",43.3040,-2.2040,"Getaria, Spain","M1",0,"Whole grilled turbot, family-style."],
+["Belcanto","Modern Portuguese",38.7100,-9.1420,"Lisbon, Portugal","M2",0,"José Avillez, Chiado."],
+["Ocean","Contemporary",37.0980,-8.3910,"Porches (Algarve), Portugal","M2",0,""],
+/* ---------- ITALY ---------- */
+["Osteria Francescana","Modern Italian",44.6449,10.9243,"Modena, Italy","M3",0,"Massimo Bottura."],
+["Le Calandre","Creative Italian",45.4210,11.7860,"Rubano, Italy","M3",0,""],
+["Piazza Duomo","Piedmontese",44.7009,8.0353,"Alba, Italy","M3",0,"Truffle country."],
+["Da Vittorio","Lombard",45.6660,9.7590,"Brusaporto, Italy","M3",0,"Famous paccheri. Warm family operation."],
+["Enoteca Pinchiorri","Tuscan",43.7690,11.2620,"Florence, Italy","M3",0,""],
+["Reale","Abruzzese",41.7850,14.1080,"Castel di Sangro, Italy","M3",0,"Niko Romito, converted monastery."],
+["Uliassi","Seafood",43.7180,13.2200,"Senigallia, Italy","M3",0,"On the Adriatic beach."],
+["La Pergola","Mediterranean",41.9190,12.4470,"Rome, Italy","M3",0,"Rooftop over Rome."],
+["Dal Pescatore","Mantuan",45.0330,10.4530,"Canneto sull'Oglio, Italy","M3",0,"Nadia Santini. Tortelli di zucca."],
+["St. Hubertus","Alpine",46.5720,11.9370,"San Cassiano, Italy","M3",0,"Dolomites."],
+/* ---------- UK + IRELAND ---------- */
+["The Fat Duck","Experimental",51.5080,-0.7013,"Bray, England","M3",0,"Heston Blumenthal."],
+["The Waterside Inn","Classic French",51.5077,-0.7005,"Bray, England","M3",0,"Roux family, on the Thames."],
+["Restaurant Gordon Ramsay","French",51.4853,-0.1620,"London, England","M3",0,"Chelsea."],
+["Sketch (Lecture Room & Library)","French",51.5125,-0.1410,"London, England","M3",0,""],
+["Core by Clare Smyth","Modern British",51.5120,-0.2000,"London, England","M3",0,"Notting Hill."],
+["L'Enclume","Farm-driven",54.2010,-2.9540,"Cartmel, England","M3",0,"Lake District village."],
+["Moor Hall","Modern British",53.5390,-2.8920,"Aughton, England","M3",0,"Recently elevated — verify."],
+["Ynyshir","Fire + spice tasting",52.5480,-3.9090,"Eglwys Fach, Wales","M2",0,"Loud, meat-heavy, remote."],
+["Restaurant Patrick Guilbaud","French",53.3400,-6.2510,"Dublin, Ireland","M2",0,"Ireland's benchmark."],
+/* ---------- GERMANY / AUSTRIA / SWITZERLAND ---------- */
+["Rutz","Modern German",52.5280,13.3870,"Berlin, Germany","M3",0,""],
+["Schwarzwaldstube","French",48.5310,8.3320,"Baiersbronn, Germany","M3",0,"Black Forest, rebuilt after the fire."],
+["Aqua","Creative",52.4310,10.7860,"Wolfsburg, Germany","M3",0,""],
+["Vendôme","Creative",50.9860,7.1310,"Bergisch Gladbach, Germany","M2",0,""],
+["JAN","Creative",48.1450,11.5560,"Munich, Germany","M3",0,""],
+["Tantris","French",48.1637,11.5866,"Munich, Germany","M2",0,"70s design landmark."],
+["Steirereck","Modern Austrian",48.2050,16.3810,"Vienna, Austria","M3",0,"In the Stadtpark. Star level recently changed — verify."],
+["Amador","Creative",48.2460,16.3560,"Vienna, Austria","M3",0,""],
+["Schloss Schauenstein","Swiss",46.7220,9.4440,"Fürstenau, Switzerland","M3",0,"Andreas Caminada's castle."],
+["Restaurant de l'Hôtel de Ville","French",46.5450,6.5750,"Crissier, Switzerland","M3",0,""],
+["Cheval Blanc by Peter Knogl","French-Mediterranean",47.5600,7.5880,"Basel, Switzerland","M3",0,""],
+["Memories","Creative",47.0030,9.5020,"Bad Ragaz, Switzerland","M3",0,""],
+/* ---------- BENELUX ---------- */
+["De Librije","Creative",52.5140,6.0930,"Zwolle, Netherlands","M3",0,""],
+["Ciel Bleu","Creative",52.3480,4.8930,"Amsterdam, Netherlands","M2",0,"23rd floor."],
+["The Jane","Creative",51.2100,4.4270,"Antwerp, Belgium","M2",0,"Former chapel. May have been promoted — verify."],
+["Hof van Cleve","Flemish",50.9440,3.5230,"Kruisem, Belgium","M3",0,"Chef transition underway — verify."],
+/* ---------- NYC ---------- */
+["Le Bernardin","Seafood",40.7615,-73.9819,"New York, NY","M3,JB",0,"Eric Ripert."],
+["Eleven Madison Park","Plant-based tasting",40.7417,-73.9872,"New York, NY","M3,JB",0,""],
+["Per Se","French-American",40.7685,-73.9832,"New York, NY","M3",0,"Columbus Circle."],
+["Masa","Sushi",40.7686,-73.9830,"New York, NY","M3",0,"The most expensive meal in America."],
+["Chef's Table at Brooklyn Fare","Tasting",40.7537,-73.9997,"New York, NY","M3",0,""],
+["Jungsik","Modern Korean",40.7180,-74.0050,"New York, NY","M3",0,"Tribeca."],
+["Atomix","Korean tasting",40.7440,-73.9840,"New York, NY","M2,JB",0,""],
+["Aquavit","Nordic",40.7610,-73.9720,"New York, NY","M2",0,""],
+["Gabriel Kreuther","Alsatian",40.7560,-73.9840,"New York, NY","M2",0,""],
+["Aska","Nordic",40.7100,-73.9660,"Brooklyn, NY","M2",0,"Williamsburg."],
+["Blue Hill at Stone Barns","Farm tasting",41.1030,-73.8290,"Pocantico Hills, NY","M2,JB",0,"Dan Barber. Worth the drive from the city."],
+["Daniel","French",40.7666,-73.9670,"New York, NY","M2,JB",0,"Daniel Boulud."],
+["Jean-Georges","French",40.7690,-73.9819,"New York, NY","M2,JB",0,""],
+["Saga","Tasting",40.7070,-74.0070,"New York, NY","M2",0,"63 floors up in FiDi."],
+["Le Coucou","French",40.7190,-73.9980,"New York, NY","M1,JB",0,""],
+["Crown Shy","American",40.7060,-74.0070,"New York, NY","M1",0,""],
+["Cote","Korean steakhouse",40.7410,-73.9930,"New York, NY","M1",1,"Steak + smokeless grills — older kids do great here."],
+["Casa Enrique","Mexican",40.7420,-73.9540,"Long Island City, NY","M1",1,"Starred Mexican that still feels neighborhood."],
+["Rezdôra","Emilian pasta",40.7400,-73.9890,"New York, NY","M1",0,""],
+["Gramercy Tavern","American",40.7385,-73.9885,"New York, NY","M1,JB",1,"The tavern room walks in, kids welcome."],
+["Union Square Cafe","American",40.7420,-73.9840,"New York, NY","JB",1,""],
+["Peter Luger","Steakhouse",40.7098,-73.9625,"Brooklyn, NY","JB",1,"Institution. Burger at lunch with kids."],
+/* ---------- CHICAGO ---------- */
+["Alinea","Avant-garde",41.9134,-87.6482,"Chicago, IL","M2",0,"Demoted from three stars in the 2025 Northeast guide."],
+["Smyth","Tasting",41.8840,-87.6520,"Chicago, IL","M3",0,""],
+["Oriole","Tasting",41.8900,-87.6520,"Chicago, IL","M2",0,""],
+["Ever","Tasting",41.8880,-87.6540,"Chicago, IL","M2",0,""],
+["Moody Tongue","Brewery tasting",41.8570,-87.6260,"Chicago, IL","M2",0,"Beer-pairing fine dining."],
+["Topolobampo","Mexican",41.8905,-87.6300,"Chicago, IL","M1,JB",0,"Rick Bayless."],
+["Frontera Grill","Mexican",41.8905,-87.6300,"Chicago, IL","JB",1,"Same door as Topolo, casual side."],
+["Boka","American",41.9130,-87.6360,"Chicago, IL","M1",0,""],
+["Kasama","Filipino",41.8990,-87.6870,"Chicago, IL","M2,JB",1,"Promoted to two stars 2025. Bakery by day (great with kids), tasting by night."],
+["Girl & the Goat","Eclectic",41.8840,-87.6480,"Chicago, IL","JB",1,"Stephanie Izard."],
+["Monteverde","Pasta",41.8830,-87.6490,"Chicago, IL","JB",1,""],
+["Parachute","Korean-American",41.9210,-87.7000,"Chicago, IL","JB",0,""],
+["Virtue","Southern",41.7990,-87.5900,"Chicago, IL","JB",1,"Hyde Park."],
+["Kuma's Corner","Burgers",41.9460,-87.7130,"Chicago, IL","DDD",1,"Metal-themed burgers."],
+["Smoque BBQ","Barbecue",41.9540,-87.7280,"Chicago, IL","DDD",1,""],
+["Al's #1 Italian Beef","Italian beef",41.8840,-87.6470,"Chicago, IL","DDD",1,"The original, Taylor Street."],
+["Lou Mitchell's","Diner",41.8785,-87.6410,"Chicago, IL","DDD",1,"Route 66 breakfast landmark. Free donut holes in line."],
+/* ---------- SF BAY AREA ---------- */
+["The French Laundry","French-American",38.4044,-122.3648,"Yountville, CA","M3",0,"Book two months out, to the minute."],
+["Benu","Asian-influenced tasting",37.7856,-122.3990,"San Francisco, CA","M3",0,"Corey Lee."],
+["Atelier Crenn","Poetic French",37.7982,-122.4360,"San Francisco, CA","M3",0,""],
+["Quince","Californian-Italian",37.7975,-122.4030,"San Francisco, CA","M3",0,""],
+["SingleThread","Farm tasting",38.6110,-122.8690,"Healdsburg, CA","M3",0,"Inn + farm, Sonoma."],
+["Saison","Open-fire tasting",37.7790,-122.3920,"San Francisco, CA","M2",0,""],
+["Lazy Bear","Modern American",37.7600,-122.4210,"San Francisco, CA","M2",0,"Communal dinner-party format."],
+["Californios","Mexican tasting",37.7660,-122.4060,"San Francisco, CA","M2",0,""],
+["Acquerello","Italian",37.7930,-122.4200,"San Francisco, CA","M2",0,""],
+["Mister Jiu's","Chinese-Californian",37.7940,-122.4070,"San Francisco, CA","M1,JB",1,"Chinatown banquet room, shareable format."],
+["State Bird Provisions","Dim-sum-style American",37.7830,-122.4330,"San Francisco, CA","M1,JB",1,"Carts make it fun for kids."],
+["Zuni Café","Californian",37.7730,-122.4210,"San Francisco, CA","JB",1,"The roast chicken."],
+["Swan Oyster Depot","Seafood counter",37.7910,-122.4210,"San Francisco, CA","JB",1,"18 stools, get in line early."],
+["La Taqueria","Tacos & burritos",37.7510,-122.4180,"San Francisco, CA","JB",1,"Mission institution."],
+["Falafel's Drive-In","Falafel",37.3230,-121.9330,"San Jose, CA","DDD",1,"Falafel + banana shake."],
+/* ---------- SOCAL ---------- */
+["Addison","Contemporary",32.9440,-117.1930,"San Diego, CA","M3",0,"San Diego's three-star."],
+["Providence","Seafood tasting",34.0830,-118.3300,"Los Angeles, CA","M2",0,""],
+["n/naka","Modern kaiseki",34.0210,-118.4110,"Los Angeles, CA","M2",0,"Niki Nakayama."],
+["Hayato","Kaiseki",34.0330,-118.2280,"Los Angeles, CA","M2",0,"Seven seats."],
+["Osteria Mozza","Italian",34.0836,-118.3380,"Los Angeles, CA","M1,JB",0,"Nancy Silverton."],
+["Guelaguetza","Oaxacan",34.0520,-118.3010,"Los Angeles, CA","JB",1,"Moles + weekend music. Great with kids."],
+["Langer's Delicatessen","Jewish deli",34.0560,-118.2670,"Los Angeles, CA","JB",1,"#19 pastrami."],
+["Hodad's","Burgers",32.7440,-117.2490,"San Diego, CA","DDD",1,"Ocean Beach original."],
+["Pizzeria Luigi","Pizza",32.7160,-117.1290,"San Diego, CA","DDD",1,""],
+/* ---------- PACIFIC NW + MOUNTAIN ---------- */
+["Canlis","Pacific Northwest",47.6420,-122.3470,"Seattle, WA","JB",0,"Midcentury landmark over Lake Union."],
+["The Walrus and the Carpenter","Oysters",47.6660,-122.3820,"Seattle, WA","JB",0,"Renee Erickson, Ballard."],
+["Beth's Café","Diner",47.6800,-122.3430,"Seattle, WA","DDD",1,"12-egg omelets, crayons on the wall."],
+["Le Pigeon","French",45.5230,-122.6560,"Portland, OR","JB",0,"Gabriel Rucker."],
+["Kann","Haitian wood-fire",45.5180,-122.6530,"Portland, OR","JB",0,"Gregory Gourdet."],
+["Langbaan","Thai tasting",45.5230,-122.6520,"Portland, OR","JB",0,"Hidden behind a curtain."],
+["Frasca Food and Wine","Friulian",40.0170,-105.2780,"Boulder, CO","M1,JB",0,""],
+["Red Iguana","Mexican (moles)",40.7720,-111.9220,"Salt Lake City, UT","DDD",1,"Killer moles, always a line."],
+/* ---------- TEXAS + PLAINS ---------- */
+["Franklin Barbecue","Barbecue",30.2701,-97.7313,"Austin, TX","JB",1,"The line is the culture. Kids welcome."],
+["Uchi","Sushi",30.2570,-97.7590,"Austin, TX","JB",0,"Tyson Cole."],
+["Cattlemen's Steakhouse","Steakhouse",35.4560,-97.5590,"Oklahoma City, OK","DDD",1,"Stockyards City since 1910."],
+["Joe's Kansas City Bar-B-Que","Barbecue",39.0570,-94.6410,"Kansas City, KS","DDD",1,"In a gas station. Z-Man sandwich."],
+["H&H Car Wash and Coffee Shop","Border diner",31.7660,-106.4930,"El Paso, TX","JB",1,"Beard America's Classic inside a working car wash."],
+/* ---------- SOUTH ---------- */
+["Commander's Palace","Creole",29.9280,-90.0840,"New Orleans, LA","JB",1,"Jazz brunch, 25¢ martinis at lunch (for you, not the kids)."],
+["Cochon","Cajun",29.9420,-90.0670,"New Orleans, LA","JB",1,""],
+["Herbsaint","French-Creole",29.9450,-90.0730,"New Orleans, LA","JB",0,"Donald Link."],
+["Compère Lapin","Caribbean-Creole",29.9450,-90.0680,"New Orleans, LA","JB",0,"Nina Compton."],
+["Dooky Chase's","Creole",29.9620,-90.0780,"New Orleans, LA","JB",1,"Leah Chase's legacy. Buffet lunch works with kids."],
+["Willie Mae's Scotch House","Fried chicken",29.9680,-90.0740,"New Orleans, LA","JB",1,"America's fried chicken benchmark."],
+["Highlands Bar & Grill","French-Southern",33.5020,-86.7960,"Birmingham, AL","JB",0,"Frank Stitt."],
+["Rodney Scott's Whole Hog BBQ","Barbecue",32.8030,-79.9450,"Charleston, SC","JB",1,""],
+["FIG","Southern-seasonal",32.7810,-79.9330,"Charleston, SC","JB",0,""],
+["Chai Pani","Indian street food",35.5950,-82.5550,"Asheville, NC","JB",1,"Beard Outstanding Restaurant. Loud + fun with kids."],
+["The Grey","Southern",32.0810,-81.0990,"Savannah, GA","JB",0,"Mashama Bailey, in a restored Greyhound station."],
+["Miller Union","Farmstead Southern",33.7830,-84.4110,"Atlanta, GA","JB",0,""],
+["Busy Bee Café","Soul food",33.7560,-84.4080,"Atlanta, GA","JB",1,"America's Classic."],
+["Prince's Hot Chicken","Hot chicken",36.2450,-86.7620,"Nashville, TN","JB",1,"The original hot chicken. Mind the heat levels with kids."],
+["Arnold's Country Kitchen","Meat-and-three",36.1520,-86.7850,"Nashville, TN","JB",1,"Cafeteria line, perfect with kids."],
+/* ---------- MID-ATLANTIC ---------- */
+["The Inn at Little Washington","American",38.7110,-78.1590,"Washington, VA","M3",0,"Patrick O'Connell. Worth the drive from DC."],
+["minibar by José Andrés","Avant-garde",38.8960,-77.0230,"Washington, DC","M2",0,""],
+["Jônt","Tasting",38.9170,-77.0320,"Washington, DC","M2",0,""],
+["Rose's Luxury","American",38.8790,-76.9950,"Washington, DC","M1",0,"Barracks Row."],
+["Tail Up Goat","Mediterranean",38.9210,-77.0450,"Washington, DC","M1",0,""],
+["Maydan","Levantine fire",38.9150,-77.0280,"Washington, DC","M1",1,"Open hearth in the middle — kids are mesmerized."],
+["Ben's Chili Bowl","Half-smokes",38.9170,-77.0280,"Washington, DC","JB",1,"U Street institution since 1958."],
+["Zahav","Israeli",39.9469,-75.1445,"Philadelphia, PA","JB",1,"The hummus. Early seatings work with kids."],
+["Vetri Cucina","Italian tasting",39.9490,-75.1620,"Philadelphia, PA","JB",0,""],
+["Friday Saturday Sunday","American",39.9490,-75.1720,"Philadelphia, PA","M1,JB",0,"Beard Outstanding Restaurant + a star in Philly's first Michelin guide (2025)."],
+["John's Roast Pork","Sandwiches",39.9230,-75.1440,"Philadelphia, PA","JB",1,"The roast pork > the cheesesteak. Fight me."],
+["Primanti Bros. (Strip District)","Sandwiches",40.4500,-79.9880,"Pittsburgh, PA","DDD",1,"The original. Fries in the sandwich — your home-turf entry."],
+["DeLuca's Diner","Diner",40.4520,-79.9850,"Pittsburgh, PA","DDD",1,"Strip District breakfast."],
+/* ---------- MIDWEST + BEYOND ---------- */
+["Owamni","Indigenous",44.9810,-93.2600,"Minneapolis, MN","JB",0,"Sean Sherman. Decolonized menu over St. Anthony Falls."],
+["Spoon and Stable","French-Midwestern",44.9850,-93.2700,"Minneapolis, MN","JB",0,"Gavin Kaysen."],
+["Al's Breakfast","Diner counter",44.9810,-93.2360,"Minneapolis, MN","JB",1,"14 stools in Dinkytown."],
+["St. Elmo Steak House","Steakhouse",39.7660,-86.1580,"Indianapolis, IN","JB",1,"The shrimp cocktail that fights back."],
+["Helena's Hawaiian Food","Hawaiian",21.3300,-157.8710,"Honolulu, HI","JB",1,"America's Classic since 1946."],
+["Joe's Stone Crab","Seafood",25.7690,-80.1350,"Miami Beach, FL","JB",1,"Since 1913."],
+["Versailles","Cuban",25.7650,-80.2200,"Miami, FL","JB",1,"The heart of Little Havana."],
+/* ---------- ATLANTA (verified 2025 American South guide) ---------- */
+["Atlas","American",33.8380,-84.3800,"Atlanta, GA","M1",0,"St. Regis, Buckhead."],
+["Bacchanalia","Contemporary",33.7850,-84.4100,"Atlanta, GA","M1",0,"Anne Quatrano's flagship. Green Star too."],
+["Hayakawa","Sushi",33.7790,-84.4120,"Atlanta, GA","M1",0,"Omakase counter."],
+["Lazy Betty","Tasting",33.7810,-84.3830,"Atlanta, GA","M1",0,"Ron Hsu."],
+["Mujo","Sushi omakase",33.7830,-84.4110,"Atlanta, GA","M1",0,"Westside."],
+["Spring","Contemporary",33.9530,-84.5490,"Marietta, GA","M1",0,"Worth the drive up to the square."],
+["O by Brush","Sushi",33.8470,-84.3730,"Atlanta, GA","M1",0,""],
+["Omakase Table","Sushi",33.7840,-84.4130,"Atlanta, GA","M1",0,""],
+["Antico Pizza","Neapolitan pizza",33.7790,-84.4060,"Atlanta, GA","PICK",1,"Michelin Bib Gourmand. Slices by the box, loud and fast."],
+["Heirloom Market BBQ","Korean-Southern BBQ",33.8880,-84.4680,"Smyrna, GA","PICK",1,"Michelin Bib Gourmand. Tiny counter, huge flavor."],
+/* ---------- NEW ORLEANS (2025) ---------- */
+["Emeril's","Contemporary Creole",29.9430,-90.0690,"New Orleans, LA","M2",0,"The South's only two-star (2025)."],
+/* ---------- TEXAS (verified 2025 guide) ---------- */
+["Barley Swine","Contemporary",30.3210,-97.7180,"Austin, TX","M1",0,""],
+["Craft Omakase","Sushi",30.2660,-97.7440,"Austin, TX","M1",0,""],
+["Hestia","Live-fire American",30.2660,-97.7470,"Austin, TX","M1",0,""],
+["InterStellar BBQ","Barbecue",30.4680,-97.7970,"Austin, TX","M1",1,"Starred barbecue. Peach tea glazed pork belly."],
+["la Barbecue","Barbecue",30.2560,-97.7220,"Austin, TX","M1",1,""],
+["Leroy and Lewis Barbecue","New-school BBQ",30.2350,-97.7580,"Austin, TX","M1",1,"Beet BBQ sauce, cauliflower burnt ends."],
+["Olamaie","Southern",30.2790,-97.7420,"Austin, TX","M1",0,"Order the off-menu biscuits."],
+["BCN Taste & Tradition","Spanish",29.7440,-95.4100,"Houston, TX","M1",0,""],
+["Le Jardinier Houston","French",29.7370,-95.3900,"Houston, TX","M1",0,"Inside the Museum of Fine Arts."],
+["March","Mediterranean tasting",29.7420,-95.3980,"Houston, TX","M1",0,""],
+["Musaafer","Indian",29.7390,-95.4610,"Houston, TX","M1",0,"The Galleria."],
+["Tatemo","Mexican (masa tasting)",29.8020,-95.4180,"Houston, TX","M1",0,"Heirloom corn tasting menu."],
+["CorkScrew BBQ","Barbecue",30.0800,-95.4170,"Spring, TX","M1",1,"Starred BBQ north of Houston."],
+["Tatsu Dallas","Sushi omakase",32.7840,-96.7830,"Dallas, TX","M1",0,"Deep Ellum."],
+["Mamani","French bistronomie",32.7930,-96.8040,"Dallas, TX","M1",0,"New star 2025 — ex-Robuchon Vegas chef."],
+["Mixtli","Modern Mexican",29.4430,-98.4790,"San Antonio, TX","M1",0,"Regional Mexican tasting."],
+["Isidore","Texan live-fire",29.4440,-98.4800,"San Antonio, TX","M1",0,"Pearl District. New star + Green Star 2025."],
+["Nicosi","Dessert tasting",29.4440,-98.4795,"San Antonio, TX","M1",0,"All-dessert tasting counter. New star 2025."],
+/* ---------- FLORIDA (Michelin FL guide — verify current) ---------- */
+["L'Atelier de Joel Robuchon Miami","French",25.7990,-80.1990,"Miami, FL","M2",0,"Design District."],
+["Ariete","Contemporary Cuban-American",25.7290,-80.2420,"Coconut Grove, FL","M1",0,""],
+["Boia De","Italian-ish",25.8180,-80.1920,"Miami, FL","M1",0,"Tiny strip-mall stunner."],
+["Stubborn Seed","Contemporary",25.7690,-80.1330,"Miami Beach, FL","M1",0,""],
+["Victoria & Albert's","American tasting",28.4110,-81.5880,"Orlando, FL","M1",0,"Inside Disney's Grand Floridian — the starred date night of your Disney trip."],
+["Soseki","Modern omakase",28.5990,-81.3280,"Winter Park, FL","M1",0,""],
+["Capa","Steakhouse (Spanish)",28.3850,-81.5510,"Orlando, FL","M1",0,"Four Seasons Orlando rooftop."],
+["Kadence","Sushi",28.5650,-81.3530,"Orlando, FL","M1",0,"Audubon Park."],
+["Lilac","Contemporary",27.9420,-82.4520,"Tampa, FL","M1",0,"Tampa EDITION hotel — verify current status."],
+/* ---------- COLORADO (Michelin CO guide — verify current) ---------- */
+["The Wolf's Tailor","Boundary-pushing tasting",39.7770,-105.0060,"Denver, CO","M1",0,""],
+["Bruto","Open-fire tasting",39.7420,-104.9920,"Denver, CO","M1",0,"Masa-focused, Dairy Block."],
+["Beckon","Counter tasting",39.7610,-104.9790,"Denver, CO","M1",0,""],
+["Bosq","Alpine foraged",39.1900,-106.8210,"Aspen, CO","M2",0,"Promoted to two stars — verify."],
+/* ---------- BOSTON (first Michelin guide, Nov 2025) ---------- */
+["311 Omakase","Sushi omakase",42.3430,-71.0720,"Boston, MA","M1",0,"Boston's first-ever star (2025). South End."],
+["Neptune Oyster","Seafood",42.3630,-71.0560,"Boston, MA","PICK",0,"Michelin Recommended. The hot buttered lobster roll. No reservations."],
+["Oleana","Eastern Mediterranean",42.3720,-71.0900,"Cambridge, MA","JB",0,"Ana Sortun, Beard winner. Patio in summer."],
+["PAGU","Japanese-Spanish",42.3650,-71.1040,"Cambridge, MA","PICK",1,"Michelin Bib Gourmand. Tracy Chang."],
+["Fox & the Knife","Italian enoteca",42.3380,-71.0480,"South Boston, MA","PICK",0,"Michelin Bib Gourmand. Karen Akunowicz (Beard winner)."],
+["Mahaniyom","Thai small plates",42.3320,-71.1030,"Brookline, MA","PICK",0,"Bib Gourmand + Michelin's Exceptional Cocktails award (2025)."],
+["Santarpio's Pizza","Pizza + lamb skewers",42.3720,-71.0390,"East Boston, MA","DDD",1,"Old-school Eastie institution — verify the TV lore."],
+/* ---------- PHILADELPHIA (first Michelin guide, Nov 2025) ---------- */
+["Her Place Supper Club","Dinner-party tasting",39.9520,-75.1650,"Philadelphia, PA","M1",0,"One seating, chalkboard menu. New star 2025."],
+["Provenance","French-Korean",39.9410,-75.1450,"Philadelphia, PA","M1",0,"New star 2025."],
+/* ---------- CHICAGO + NYC 2025 updates ---------- */
+["Feld","Seasonal tasting",41.8860,-87.6540,"Chicago, IL","M1",0,"New star + Green Star 2025."],
+["Sushi Sho","Edomae sushi",40.7530,-73.9810,"New York, NY","M3",0,"Promoted to three stars 2025 — Keiji Nakazawa."],
+["Joo Ok","Modern Korean",40.7420,-73.9850,"New York, NY","M2",0,"Promoted to two stars 2025."],
+/* ---------- WIDER US NET (classics + TV, verify each) ---------- */
+["Lotus of Siam","Northern Thai",36.1440,-115.1560,"Las Vegas, NV","JB",1,"America's Classic. The strip-mall Thai benchmark."],
+["The Fry Bread House","Tohono O'odham fry bread",33.4800,-112.0850,"Phoenix, AZ","JB",1,"America's Classic."],
+["Al Ameer","Lebanese",42.3220,-83.1760,"Dearborn, MI","JB",1,"America's Classic — the heart of Dearborn's Lebanese scene."],
+["Three Brothers","Serbian",42.9990,-87.8940,"Milwaukee, WI","JB",1,"America's Classic. Burek and slivovitz in an old Schlitz tavern."],
+["Crown Candy Kitchen","Soda fountain + BLTs",38.6540,-90.1910,"St. Louis, MO","DDD",1,"1913 soda fountain. Malts, massive BLTs."],
+["Bar-B-Q King","Drive-in BBQ",35.2200,-80.8680,"Charlotte, NC","DDD",1,"Curb service since 1959."],
+["Melt Bar and Grilled","Grilled cheese",41.4850,-81.7370,"Lakewood, OH","DDD",1,"Cleveland's over-the-top grilled cheese — verify current locations."],
+["Fore Street","Wood-fired Maine",43.6580,-70.2530,"Portland, ME","JB",0,"Sam Hayward, Beard winner. Book the hearth room."],
+/* ---------- PHILADELPHIA LOCAL CUISINE (verified vs 2025-26 lists) ---------- */
+["Angelo's Pizzeria","Cheesesteak + pizza",39.9400,-75.1580,"Philadelphia, PA","PICK",1,"Local icon + Michelin Bib Gourmand. House-baked seeded rolls, Cooper Sharp. Cash only, no seats — eat on the curb like you mean it."],
+["Dalessandro's Steaks","Cheesesteak",40.0290,-75.2050,"Philadelphia, PA","PICK",1,"Local icon + Michelin Bib Gourmand. Finely chopped, chunky onions, Roxborough since 1960."],
+["Del Rossi's","Cheesesteak",39.9620,-75.1450,"Philadelphia, PA","PICK",1,"Michelin Bib Gourmand (2025) — the new-school contender."],
+["Chubby's Steaks","Cheesesteak",40.0290,-75.2060,"Philadelphia, PA","PICK",1,"100 feet across from Dalessandro's — the REAL Philly rivalry. Counter + full bar, shorter line."],
+["Jim's South Street","Cheesesteak",39.9410,-75.1490,"Philadelphia, PA","PICK",1,"Art-deco South Street landmark, rebuilt after the 2022 fire. Whiz wit."],
+["Pat's King of Steaks","Cheesesteak",39.9331,-75.1590,"Philadelphia, PA","PICK",1,"Invented the steak sandwich in 1930. Tourist rite more than best-in-class — but the Pat's/Geno's corner at midnight is theater."],
+["Donkey's Place","Cheesesteak (poppy roll)",39.9370,-75.1060,"Camden, NJ","PICK",1,"Bourdain's pick for best cheesesteak — round poppy-seed roll, killer onions. 10 min over the bridge."],
+["Tommy DiNic's","Roast pork sandwich",39.9530,-75.1590,"Philadelphia, PA","PICK",1,"Local icon. Roast pork, sharp provolone, broccoli rabe — inside Reading Terminal."],
+["Uncle Gus' Steaks","Cheesesteak",39.9531,-75.1593,"Philadelphia, PA","PICK",1,"New 2025 — the DiNic's + Angelo's supergroup stall in Reading Terminal. One sandwich, done right."],
+["Reading Terminal Market","Market hall",39.9533,-75.1596,"Philadelphia, PA","PICK",1,"The whole food city under one 1893 train-shed roof. Perfect with a kid: everyone picks their own lunch."],
+["Franklin Fountain","Ice cream parlor",39.9490,-75.1440,"Philadelphia, PA","PICK",1,"1900s soda fountain in Old City. The father-son dessert stop."],
+["Pizzeria Beddia","Pizza",39.9720,-75.1350,"Philadelphia, PA","PICK",1,"Once called the best pizza in America. Fishtown."],
+["Kalaya","Southern Thai",39.9670,-75.1340,"Philadelphia, PA","JB",0,"Nok Suntaranon, Beard winner. Fishtown. Bold, no-punches-pulled Thai."],
+["South Philly Barbacoa","Mexican barbacoa",39.9350,-75.1580,"Philadelphia, PA","JB",1,"Cristina Martinez, Beard winner. Weekend lamb barbacoa — go early."],
+["Vernick Food & Drink","American",39.9510,-75.1770,"Philadelphia, PA","JB",0,"Greg Vernick, Beard winner. Rittenhouse."],
+/* ---------- LOCAL CUISINE: KC + EL PASO (the concept, seeded) ---------- */
+["Arthur Bryant's","KC barbecue",39.0790,-94.5560,"Kansas City, MO","PICK",1,"Local icon — burnt ends were born here. The sauce is the argument."],
+["L&J Cafe","Border Mexican",31.7810,-106.4470,"El Paso, TX","PICK",1,"Local icon. 'The old place by the graveyard' since 1927."],
+["Chico's Tacos","Flautas in broth",31.7690,-106.4260,"El Paso, TX","PICK",1,"Local icon rite of passage: flautas drowned in tomato broth under shredded cheese."],
+/* ---------- POLAND — VERIFIED 2026 NATIONWIDE GUIDE ---------- */
+["Arco by Paco Perez","Creative (Catalan-Baltic)",54.4030,18.5670,"Gdansk, Poland","M1",0,"Star confirmed 2026 — 33rd floor of Olivia Star tower, Baltic views."],
+["Eliksir","Modern Polish + cocktails",54.3520,18.6460,"Gdansk, Poland","PICK",0,"Poland's only Michelin Green Star. Food-and-cocktail pairing."],
+["Hewelke","Modern Polish",54.3560,18.6440,"Gdansk, Poland","PICK",0,"Michelin Bib Gourmand."],
+["Treinta y Tres","Latin-Polish",54.3500,18.6530,"Gdansk, Poland","PICK",0,"Michelin Bib Gourmand."],
+["1911 Restaurant","Modern Polish",54.4440,18.5670,"Sopot, Poland","PICK",0,"Michelin Bib Gourmand — in a 1911 villa, blocks from the pier."],
+["Vinissimo","Italian-Polish + wine",54.4420,18.5660,"Sopot, Poland","PICK",0,"Michelin Bib Gourmand."],
+["hub.praga","Modern Polish",52.2540,21.0350,"Warsaw, Poland","M1",0,"Warsaw's third star (2025). Praga side of the river — crayfish royale."],
+["Alon Omakase","Edomae sushi",52.2300,21.0100,"Warsaw, Poland","M1",0,"Poland's first Japanese star (2026)."],
+["Rozbrat 20","Modern European",52.2220,21.0330,"Warsaw, Poland","M1",0,""],
+["Giewont","Highland Polish",49.2770,19.8880,"Koscielisko, Poland","M1",0,"Tatra mountains, near Zakopane."],
+["Muga","Modern Polish",52.4060,16.9290,"Poznan, Poland","M1",0,""],
+["BABA","Reinvented Polish",51.1100,17.0300,"Wroclaw, Poland","M1",0,"Bib-to-star promotion 2026. Beata Sniechowska."],
+["Most","Tasting counter",51.1130,17.0400,"Wroclaw, Poland","M1",0,"New star 2026, hidden inside Miedzy Mostami."],
+["Steampunk","Creative",49.9790,18.9440,"Pszczyna, Poland","M1",0,"New star 2026 — inside a converted water tower."],
+/* ---------- SWINOUJSCIE + FERRY ROUTE (review-vetted picks — verify) ---------- */
+["Kurna Chata","Traditional Polish",53.9100,14.2470,"Swinoujscie, Poland","PICK",1,"The most-loved local Polish spot in town — pierogi, zurek. Verify hours in season."],
+["Rybna Chata","Baltic fish house",53.9210,14.2600,"Swinoujscie, Poland","PICK",1,"Fish restaurant in an old merchant villa. Confit sturgeon, fish soup."],
+["Restauracja Vinyl","Seasonal fusion",53.9200,14.2590,"Swinoujscie, Poland","PICK",0,"The town's ambitious kitchen — scallops, venison carpaccio. Best-reviewed in town."],
+["Kuter Smazalnia & Grill","Fried-fish shack",53.9180,14.2620,"Swinoujscie, Poland","PICK",1,"The classic Baltic smazalnia ryb: fried cod, fries, surowka. The whole coastal genre in one stop."],
+["Pierogi Babci Halinki","Pierogi",53.9080,14.2480,"Swinoujscie, Poland","PICK",1,"Cheap, homey pierogi — easy kid dinner."],
+/* ---------- SOUTHERN SWEDEN (SKANE — ferry side) ---------- */
+["Vollmers","Modern Swedish",55.5960,13.0040,"Malmo, Sweden","M2",0,"Malmo's two-star — verify current status."],
+["VYN","Skane tasting",55.4750,14.2830,"Skillinge, Sweden","M2",0,"Daniel Berlin's inn on the Osterlen coast — verify stars. Between Ystad and Simrishamn, right on a ferry-country road trip."],
+["Lyran","Neo-bistro",55.5890,13.0110,"Malmo, Sweden","PICK",0,"Michelin Bib Gourmand — verify. Mollevangen."],
+["Malmo Saluhall","Food hall",55.6120,12.9970,"Malmo, Sweden","PICK",1,"Market hall in an old freight depot — everyone picks their own."],
+/* ---------- COPENHAGEN — CASUAL + FAMILY LAYER ---------- */
+["Popl","Burgers (ex-noma)",55.6790,12.6000,"Copenhagen, Denmark","PICK",1,"The noma team's burger spot, Christianshavn."],
+["Juno the Bakery","Bakery",55.7060,12.5770,"Copenhagen, Denmark","PICK",1,"The cardamom bun worth crossing town for. Osterbro."],
+["Restaurant Schonnemann","Smorrebrod",55.6810,12.5750,"Copenhagen, Denmark","PICK",0,"Smorrebrod institution since 1877 — lunch only, book ahead."],
+["Sanchez","Mexican",55.6710,12.5560,"Copenhagen, Denmark","PICK",1,"Rosio Sanchez (ex-noma pastry). Vesterbro."],
+["Barr","Nordic beer hall",55.6790,12.5920,"Copenhagen, Denmark","PICK",1,"In noma's old waterfront space — schnitzel and great beer, kids fine."],
+["Selma","Modern smorrebrod",55.6830,12.5620,"Copenhagen, Denmark","PICK",0,"Michelin Bib Gourmand — verify. The new-school open sandwich."]
+];
+
+/* ---------- STATE ---------- */
+let PLACES=loadLocal();
+let PROFILE=localStorage.getItem(PROFKEY)||"";
+let CLOUD=loadCloudCfg();
+let activeFilters=new Set(), searchTerm="", editingId=null, pendingLatLng=null;
+const markers={};
+
+/* ---------- MAP ---------- */
+const map=L.map("map",{zoomControl:false}).setView([45,-30],3);
+L.control.zoom({position:"topright"}).addTo(map);
+L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",{attribution:"© OpenStreetMap © CARTO",maxZoom:19}).addTo(map);
+document.querySelector(".leaflet-top.leaflet-right").style.marginTop="96px";
+
+/* ---------- SEED EXPANSION ---------- */
+function slug(s){return s.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");}
+function expandSeed(r){
+  const [n,c,la,lo,ci,acc,f,no]=r;
+  const codes=(acc||"").split(",").map(s=>s.trim()).filter(Boolean);
+  const accolades=[]; let stars=0;
+  codes.forEach(cd=>{
+    if(/^M[123]$/.test(cd)){ accolades.push("michelin"); stars=+cd[1]; }
+    else if(cd==="JB") accolades.push("beard");
+    else if(cd==="DDD") accolades.push("ddd");
+    else if(cd==="PICK") accolades.push("pick");
+  });
+  return {id:"s-"+slug(n),name:n,cuisine:c,lat:la,lng:lo,address:ci,accolades,stars,fam:!!f,note:no||"",v:false,ratings:{}};
+}
+
+/* ---------- FILTER / VISIBILITY ---------- */
+function visiblePlaces(){
+  return PLACES.filter(p=>{
+    if(activeFilters.size){
+      let ok=false;
+      for(const f of activeFilters){
+        if(f==="family"){ if(p.fam) ok=true; }
+        else if((p.accolades||[]).includes(f)) ok=true;
+      }
+      if(!ok) return false;
+    }
+    if(searchTerm){
+      const hay=`${p.name} ${p.cuisine||""} ${p.address||""} ${p.note||""}`.toLowerCase();
+      if(!hay.includes(searchTerm)) return false;
+    }
+    return true;
+  });
+}
+
+/* ---------- MARKERS ---------- */
+function pinColor(p){
+  const a=p.accolades||[];
+  if(a.includes("michelin")) return ACC.michelin.color;
+  if(a.includes("beard")) return ACC.beard.color;
+  if(a.includes("ddd")) return ACC.ddd.color;
+  if(a.includes("pick")) return ACC.pick.color;
+  return "#8A8072";
+}
+function markerIcon(p){
+  const core=(p.accolades||[]).includes("michelin")&&p.stars?("★".repeat(Math.min(p.stars,3))):"";
+  return L.divIcon({className:"",iconSize:[26,26],iconAnchor:[13,25],
+    html:`<div class="pin" style="background:${pinColor(p)}"><div class="core">${core}</div></div>`});
+}
+function renderMarkers(){
+  Object.values(markers).forEach(m=>map.removeLayer(m));
+  for(const k in markers) delete markers[k];
+  const vis=visiblePlaces();
+  vis.forEach(p=>{
+    if(typeof p.lat!=="number"||typeof p.lng!=="number")return;
+    const m=L.marker([p.lat,p.lng],{icon:markerIcon(p)}).addTo(map);
+    m.on("click",()=>openDetail(p.id));
+    markers[p.id]=m;
+  });
+  document.getElementById("count-n").textContent=vis.length;
+}
+
+/* ---------- FILTER CHIPS ---------- */
+function renderFilters(){
+  const wrap=document.getElementById("filters"); wrap.innerHTML="";
+  const defs=[...Object.entries(ACC),["family",{label:"Family-friendly",color:FAM_COLOR}]];
+  defs.forEach(([key,a])=>{
+    const b=document.createElement("button");
+    b.className="chip"; b.setAttribute("aria-pressed",activeFilters.has(key));
+    b.innerHTML=`<span class="dot" style="background:${a.color}"></span>${a.label}`;
+    b.onclick=()=>{activeFilters.has(key)?activeFilters.delete(key):activeFilters.add(key);renderFilters();renderMarkers();};
+    wrap.appendChild(b);
+  });
+}
+
+/* ---------- SHEET ---------- */
+const sheet=document.getElementById("sheet"),scrim=document.getElementById("scrim");
+function openSheet(t){document.getElementById("sheet-title").textContent=t;sheet.classList.add("on");scrim.classList.add("on");}
+function closeSheet(){sheet.classList.remove("on");scrim.classList.remove("on");editingId=null;pendingLatLng=null;}
+scrim.onclick=closeSheet;
+document.getElementById("btn-close").onclick=closeSheet;
+
+/* ---------- FORM ---------- */
+function openForm(place){
+  editingId=place?place.id:null;
+  pendingLatLng=place?{lat:place.lat,lng:place.lng}:null;
+  const p=place||{name:"",cuisine:"",address:"",accolades:[],stars:0,fam:false,note:""};
+  const opts=[...Object.entries(ACC),["family",{label:"Family-friendly",color:FAM_COLOR}]];
+  const isOn=k=>k==="family"?p.fam:(p.accolades||[]).includes(k);
+  const accHTML=opts.map(([k,a])=>`
+    <label class="accopt" data-acc="${k}" data-on="${isOn(k)}">
+      <input type="checkbox" ${isOn(k)?"checked":""}/>
+      <span class="dot" style="background:${a.color}"></span>${a.label}
+    </label>`).join("");
+  document.getElementById("sheet-body").innerHTML=`
+    <label class="fld"><span>Restaurant</span><input type="text" id="f-name" value="${esc(p.name)}" placeholder="e.g. Cochon"/></label>
+    <label class="fld"><span>Address / city</span>
+      <div class="addrrow"><input type="text" id="f-addr" value="${esc(p.address)}" placeholder="Street, city, country"/><button class="geobtn" id="f-geo">Find</button></div>
+      <div class="geohint" id="f-geohint">${place?"Saved location kept unless you re-find.":"Type an address, then Find to drop the pin."}</div>
+    </label>
+    <label class="fld"><span>Cuisine</span><input type="text" id="f-cuisine" value="${esc(p.cuisine)}" placeholder="e.g. Cajun, Sushi, Barbecue"/></label>
+    <div class="fld"><span class="fldlabel">Lenses</span><div class="accgrid" id="f-acc">${accHTML}</div></div>
+    <label class="fld" id="f-starswrap" style="${(p.accolades||[]).includes("michelin")?"":"display:none"}"><span>Michelin stars</span>
+      <select id="f-stars"><option value="1"${p.stars===1?" selected":""}>★</option><option value="2"${p.stars===2?" selected":""}>★★</option><option value="3"${p.stars===3?" selected":""}>★★★</option></select>
+    </label>
+    <label class="fld"><span>Shared note</span><textarea id="f-note" placeholder="Why it's worth it. What to order.">${esc(p.note)}</textarea></label>
+    <button class="primary" id="f-save">${place?"Save changes":"Add to map"}</button>
+    ${place?`<button class="ghost danger" id="f-del">Remove this place</button>`:""}`;
+  openSheet(place?"Edit place":"Add a place");
+  document.querySelectorAll("#f-acc .accopt").forEach(el=>{
+    el.onclick=e=>{
+      if(e.target.tagName!=="INPUT"){const cb=el.querySelector("input");cb.checked=!cb.checked;}
+      el.dataset.on=el.querySelector("input").checked;
+      if(el.dataset.acc==="michelin") document.getElementById("f-starswrap").style.display=el.querySelector("input").checked?"":"none";
+    };
+  });
+  document.getElementById("f-geo").onclick=geocode;
+  document.getElementById("f-save").onclick=saveForm;
+  if(place)document.getElementById("f-del").onclick=()=>removePlace(place.id);
+}
+
+async function geocode(){
+  const addr=document.getElementById("f-addr").value.trim();
+  const hint=document.getElementById("f-geohint"),btn=document.getElementById("f-geo");
+  if(!addr){hint.className="geohint err";hint.textContent="Enter an address first.";return;}
+  hint.className="geohint";hint.textContent="Looking up…";btn.disabled=true;
+  try{
+    const r=await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(addr)}`,{headers:{Accept:"application/json"}});
+    const j=await r.json();
+    if(j&&j.length){
+      pendingLatLng={lat:+j[0].lat,lng:+j[0].lon};
+      hint.className="geohint ok";hint.textContent="Pin located ✓ "+(j[0].display_name||"").split(",").slice(0,3).join(", ");
+      map.setView([pendingLatLng.lat,pendingLatLng.lng],14);
+    }else{hint.className="geohint err";hint.textContent="No match. Try adding city + country.";}
+  }catch(e){hint.className="geohint err";hint.textContent="Lookup failed (check connection).";}
+  finally{btn.disabled=false;}
+}
+
+function saveForm(){
+  const name=document.getElementById("f-name").value.trim();
+  if(!name){document.getElementById("f-name").focus();return;}
+  if(!pendingLatLng){
+    const h=document.getElementById("f-geohint");h.className="geohint err";h.textContent="Find the address to place the pin first.";return;
+  }
+  const accolades=[];let fam=false;
+  document.querySelectorAll("#f-acc .accopt").forEach(el=>{
+    if(el.querySelector("input").checked){
+      if(el.dataset.acc==="family")fam=true;else accolades.push(el.dataset.acc);
+    }
+  });
+  const prev=editingId?PLACES.find(p=>p.id===editingId):null;
+  const rec={
+    id:editingId||uid(),name,
+    cuisine:document.getElementById("f-cuisine").value.trim(),
+    address:document.getElementById("f-addr").value.trim(),
+    note:document.getElementById("f-note").value.trim(),
+    accolades,
+    stars:accolades.includes("michelin")?+document.getElementById("f-stars").value:0,
+    fam,
+    lat:pendingLatLng.lat,lng:pendingLatLng.lng,
+    v:true,
+    ratings:(prev&&prev.ratings)||{}
+  };
+  if(editingId)PLACES=PLACES.map(p=>p.id===editingId?rec:p);
+  else PLACES.push(rec);
+  persistLocal();cloudUpsert([rec]);
+  renderMarkers();closeSheet();
+  map.setView([rec.lat,rec.lng],13);
+}
+
+function removePlace(id){
+  PLACES=PLACES.filter(p=>p.id!==id);
+  persistLocal();cloudDelete(id);
+  renderMarkers();closeSheet();
+}
+
+/* ---------- DETAIL + RATINGS ---------- */
+function badgeFor(p,a){
+  if(a==="michelin")return `<span class="badge" style="background:${ACC.michelin.color}">Michelin ${"★".repeat(p.stars||1)}</span>`;
+  return `<span class="badge" style="background:${ACC[a].color}">${ACC[a].label}</span>`;
+}
+function ratingsHTML(p){
+  const r=p.ratings||{};
+  const others=Object.entries(r).map(([who,val])=>`
+    <div class="rating-row">
+      <span class="rating-who">${esc(who)}</span>
+      <div><span class="rating-stars">${"★".repeat(val.score||0)}${"☆".repeat(Math.max(0,5-(val.score||0)))}</span>
+      ${val.take?`<p class="rating-take">${esc(val.take)}</p>`:""}</div>
+    </div>`).join("");
+  const mine=PROFILE&&r[PROFILE]?r[PROFILE]:{score:0,take:""};
+  return `<div class="ratings">
+    <span class="fldlabel">Our takes</span>
+    ${others||`<p class="geohint">No ratings yet — be the first.</p>`}
+    ${PROFILE?`
+      <span class="fldlabel" style="margin-top:12px;">${esc(PROFILE)}'s rating</span>
+      <div class="starpick" id="r-stars">${[1,2,3,4,5].map(n=>`<button data-n="${n}" class="${mine.score>=n?"on":""}" aria-label="${n} star${n>1?"s":""}">★</button>`).join("")}</div>
+      <textarea id="r-take" placeholder="Your take — worth the trip?">${esc(mine.take||"")}</textarea>
+      <button class="ghost" id="r-save">Save my rating</button>`
+    :`<p class="geohint">Set your name in the menu (☰ → Profile) to rate places.</p>`}
+  </div>`;
+}
+function openDetail(id){
+  const p=PLACES.find(x=>x.id===id);if(!p)return;
+  const badges=(p.accolades||[]).filter(a=>ACC[a]).map(a=>badgeFor(p,a)).join("")
+    +(p.fam?`<span class="badge" style="background:${FAM_COLOR}">Family-friendly</span>`:"");
+  const gmaps=`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.name+" "+(p.address||""))}`;
+  document.getElementById("sheet-body").innerHTML=`
+    ${badges?`<div class="accbadges">${badges}</div>`:""}
+    ${p.cuisine?`<p class="detail-cuisine">${esc(p.cuisine)}</p>`:""}
+    ${p.note?`<p class="detail-note">${esc(p.note)}</p>`:""}
+    ${p.address?`<p class="detail-addr"><svg viewBox="0 0 24 24"><path d="M12 21s7-6.3 7-11a7 7 0 10-14 0c0 4.7 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>${esc(p.address)}</p>`:""}
+    ${p.v?"":`<p class="verifyrow">Unverified — double-check hours, status, and exact location before you go.</p>`}
+    <a class="maplink" href="${gmaps}" target="_blank" rel="noopener">Open in Maps ↗</a>
+    ${p.v?"":`<button class="ghost" id="d-verify">Mark as verified</button>`}
+    ${ratingsHTML(p)}
+    <div class="row2" style="margin-top:16px;">
+      <button class="ghost" id="d-edit">Edit</button>
+      <button class="ghost danger" id="d-del">Remove</button>
+    </div>`;
+  openSheet(p.name);
+  document.getElementById("d-edit").onclick=()=>openForm(p);
+  document.getElementById("d-del").onclick=()=>removePlace(p.id);
+  const vb=document.getElementById("d-verify");
+  if(vb)vb.onclick=()=>{p.v=true;persistLocal();cloudUpsert([p]);openDetail(p.id);};
+  if(PROFILE){
+    let picked=(p.ratings&&p.ratings[PROFILE]&&p.ratings[PROFILE].score)||0;
+    const starBtns=document.querySelectorAll("#r-stars button");
+    starBtns.forEach(b=>{
+      b.onclick=()=>{
+        picked=+b.dataset.n;
+        starBtns.forEach(x=>x.classList.toggle("on",+x.dataset.n<=picked));
+      };
+    });
+    document.getElementById("r-save").onclick=()=>{
+      p.ratings=p.ratings||{};
+      p.ratings[PROFILE]={score:picked,take:document.getElementById("r-take").value.trim(),at:new Date().toISOString()};
+      persistLocal();cloudUpsert([p]);openDetail(p.id);
+    };
+  }
+}
+
+/* ---------- LIST ---------- */
+function ringFor(p){return pinColor(p);}
+function metaFor(p){
+  const parts=[p.cuisine];
+  (p.accolades||[]).forEach(a=>{
+    if(a==="michelin")parts.push("Michelin "+"★".repeat(p.stars||1));
+    else if(ACC[a])parts.push(ACC[a].label);
+  });
+  if(p.fam)parts.push("Family");
+  const scores=Object.values(p.ratings||{}).map(r=>r.score).filter(Boolean);
+  if(scores.length)parts.push((scores.reduce((a,b)=>a+b,0)/scores.length).toFixed(1)+"★ us");
+  return parts.filter(Boolean).join(" · ");
+}
+function openList(){
+  const vis=visiblePlaces().slice().sort((a,b)=>a.name.localeCompare(b.name));
+  let html;
+  if(!vis.length){html=`<div class="empty"><h3>Nothing here yet</h3><p>Add a place, or clear filters to see everything.</p></div>`;}
+  else{html=vis.map(p=>`<div class="listitem" data-id="${p.id}">
+      <span class="li-ring" style="background:${ringFor(p)}"></span>
+      <div class="li-main"><p class="li-name">${esc(p.name)}</p><p class="li-meta">${esc(metaFor(p))||"&nbsp;"}</p></div>
+    </div>`).join("");}
+  document.getElementById("sheet-body").innerHTML=html;
+  openSheet(`${vis.length} place${vis.length===1?"":"s"}`);
+  document.querySelectorAll(".listitem").forEach(el=>{
+    el.onclick=()=>{const p=PLACES.find(x=>x.id===el.dataset.id);map.setView([p.lat,p.lng],13);openDetail(p.id);};
+  });
+}
+
+/* ---------- SEARCH ---------- */
+function openSearch(){
+  document.getElementById("sheet-body").innerHTML=`
+    <label class="fld"><span>Search your atlas</span>
+      <input type="text" id="s-input" value="${esc(searchTerm)}" placeholder="Name, cuisine, city, note…" autocomplete="off"/></label>
+    <div id="s-results"></div>`;
+  openSheet("Search");
+  const inp=document.getElementById("s-input");inp.focus();
+  const run=()=>{
+    searchTerm=inp.value.trim().toLowerCase();renderMarkers();
+    const vis=visiblePlaces();
+    document.getElementById("s-results").innerHTML=vis.slice(0,40).map(p=>
+      `<div class="listitem" data-id="${p.id}"><span class="li-ring" style="background:${ringFor(p)}"></span>
+       <div class="li-main"><p class="li-name">${esc(p.name)}</p><p class="li-meta">${esc([p.cuisine,p.address].filter(Boolean).join(" · "))||"&nbsp;"}</p></div></div>`).join("")
+      ||`<p class="geohint">No matches.</p>`;
+    document.querySelectorAll("#s-results .listitem").forEach(el=>{
+      el.onclick=()=>{const p=PLACES.find(x=>x.id===el.dataset.id);closeSheet();map.setView([p.lat,p.lng],13);setTimeout(()=>openDetail(p.id),150);};
+    });
+  };
+  inp.oninput=run;run();
+}
+
+/* ---------- MENU ---------- */
+function openMenu(){
+  document.getElementById("sheet-body").innerHTML=`
+    <div class="menusec">
+      <span class="fldlabel">Profile</span>
+      <label class="fld"><span>Your name (for ratings)</span>
+        <input type="text" id="m-name" value="${esc(PROFILE)}" placeholder="e.g. Ryan"/></label>
+      <button class="ghost" id="m-savename">Save name</button>
+    </div>
+    <div class="menusec">
+      <span class="fldlabel">Shared atlas ${CLOUD?'<span style="color:var(--pick)">· connected</span>':""}</span>
+      ${CLOUD?`
+        <button class="primary" id="m-sync">Sync now</button>
+        <button class="ghost danger" id="m-disconnect">Disconnect shared atlas</button>`
+      :`
+        <p class="geohint" style="margin-bottom:10px;">Connect a free Supabase project so you and your wife share one live atlas. Full walkthrough in the Setup guide below.</p>
+        <label class="fld"><span>Supabase project URL</span><input type="text" id="m-url" placeholder="https://xxxx.supabase.co"/></label>
+        <label class="fld"><span>Anon public key</span><input type="password" id="m-key" placeholder="eyJhbGciOi…"/></label>
+        <button class="primary" id="m-connect">Connect &amp; merge</button>`}
+      <div class="livestatus" id="m-cloudstatus"></div>
+    </div>
+    <div class="menusec">
+      <span class="fldlabel">Live sources</span>
+      <button class="ghost" id="m-wiki">Pull Michelin data from Wikidata</button>
+      <div class="livestatus" id="m-status"></div>
+    </div>
+    <div class="menusec">
+      <span class="fldlabel">Backups</span>
+      <button class="ghost" id="m-export">Export my atlas (backup)</button>
+      <button class="ghost" id="m-import">Import from a backup file</button>
+      <input type="file" id="m-file" accept="application/json" style="display:none"/>
+    </div>
+    <div class="menusec">
+      <span class="fldlabel">Starter data</span>
+      <button class="ghost" id="m-merge">Merge starter atlas (${SEED.length} places)</button>
+      <button class="ghost danger" id="m-reset">Reset everything to starter atlas</button>
+    </div>
+    <div class="menusec">
+      <span class="fldlabel">Help</span>
+      <button class="ghost" id="m-guide">Setup guide — install, share, sync</button>
+    </div>
+    <div class="seednote">
+      <b>Where your data lives:</b> on this device, saved automatically — plus in your shared Supabase table once connected. Starter data is best-effort from general knowledge; everything begins <b>unverified</b> until you confirm it.
+    </div>`;
+  openSheet("Atlas settings");
+  document.getElementById("m-savename").onclick=()=>{
+    PROFILE=document.getElementById("m-name").value.trim();
+    localStorage.setItem(PROFKEY,PROFILE);
+    document.getElementById("m-cloudstatus").textContent=PROFILE?`Hi, ${PROFILE}. Your ratings will save under this name.`:"Name cleared.";
+  };
+  if(CLOUD){
+    document.getElementById("m-sync").onclick=async()=>{
+      setStatus("m-cloudstatus","Syncing…");
+      const ok=await cloudPullMerge();
+      setStatus("m-cloudstatus",ok?"Synced. Your atlas is up to date.":"Sync failed — check connection.");
+      renderMarkers();
+    };
+    document.getElementById("m-disconnect").onclick=()=>{
+      if(confirm("Disconnect the shared atlas? Data stays on this device and in Supabase; they just stop syncing.")){
+        CLOUD=null;localStorage.removeItem(CLOUDKEY);syncBadge();openMenu();
+      }
+    };
+  }else{
+    document.getElementById("m-connect").onclick=async()=>{
+      const url=document.getElementById("m-url").value.trim().replace(/\/+$/,"");
+      const key=document.getElementById("m-key").value.trim();
+      if(!/^https:\/\/.+\.supabase\.co$/.test(url)||!key){setStatus("m-cloudstatus","Enter a valid project URL and anon key.");return;}
+      CLOUD={url,key};
+      setStatus("m-cloudstatus","Connecting…");
+      const pulled=await cloudPullMerge();
+      if(pulled===false){CLOUD=null;setStatus("m-cloudstatus","Couldn't reach that project — check URL/key and that the places table exists (see Setup guide).");return;}
+      localStorage.setItem(CLOUDKEY,JSON.stringify(CLOUD));
+      const pushed=await cloudUpsert(PLACES);
+      setStatus("m-cloudstatus",pushed?"Connected. Atlas merged and shared — have your wife open this same site, set her name, and connect with the same URL + key.":"Connected for reading, but pushing failed — check the table policy in the Setup guide.");
+      syncBadge();renderMarkers();
+    };
+  }
+  document.getElementById("m-wiki").onclick=wikidataPull;
+  document.getElementById("m-export").onclick=exportData;
+  document.getElementById("m-import").onclick=()=>document.getElementById("m-file").click();
+  document.getElementById("m-file").onchange=importData;
+  document.getElementById("m-merge").onclick=()=>{
+    const added=mergeSeeds();persistLocal();if(added)cloudUpsert(PLACES.filter(p=>p.id.startsWith("s-")));
+    renderMarkers();
+    setStatus("m-status",`Merged ${added} new place${added===1?"":"s"} from the starter set.`);
+  };
+  document.getElementById("m-reset").onclick=()=>{
+    if(confirm("Replace EVERYTHING on this device with the starter atlas? (A connected shared atlas is not wiped, and will merge back on next sync.)")){
+      PLACES=SEED.map(expandSeed);persistLocal();renderMarkers();closeSheet();
+    }
+  };
+  document.getElementById("m-guide").onclick=openGuide;
+}
+function setStatus(id,msg){const el=document.getElementById(id);if(el)el.textContent=msg;}
+
+function mergeSeeds(){
+  const have=new Set(PLACES.map(p=>p.name.toLowerCase()));
+  let n=0;
+  SEED.forEach(r=>{if(!have.has(r[0].toLowerCase())){PLACES.push(expandSeed(r));n++;}});
+  return n;
+}
+
+/* ---------- SETUP GUIDE ---------- */
+const TABLE_SQL=`create table if not exists places (
+  id text primary key,
+  data jsonb not null,
+  updated_at timestamptz default now()
+);
+alter table places enable row level security;
+create policy "atlas anon access" on places
+  for all using (true) with check (true);`;
+
+function openGuide(){
+  document.getElementById("sheet-body").innerHTML=`<div class="guide">
+    <h3>1 · Put Atlas online</h3>
+    <ol>
+      <li>Create a free account at <code>github.com</code> (from a computer is easiest).</li>
+      <li>New repository → name it anything (e.g. <code>atlas</code>) → <b>Public</b> → Create. (GitHub Pages is free on public repos; private repos need a paid plan.)</li>
+      <li>Click <b>uploading an existing file</b>, add this <code>index.html</code>, and Commit.</li>
+      <li>Repo <b>Settings → Pages</b> → under "Branch" choose <code>main</code> and Save.</li>
+      <li>In a minute your atlas is live at <code>yourname.github.io/atlas</code>. That URL is permanent — bookmark it.</li>
+    </ol>
+    <p>The page is public but unlisted: only people with the link will realistically find it, and no personal data is in the file itself. Your places live in your browser and (optionally) your own Supabase project — not in the repo.</p>
+
+    <h3>2 · Install on your phones</h3>
+    <ol>
+      <li><b>iPhone:</b> open the URL in Safari → Share button → <b>Add to Home Screen</b>.</li>
+      <li><b>Android:</b> open in Chrome → ⋮ menu → <b>Add to Home screen</b>.</li>
+      <li>It now launches full-screen like a native app.</li>
+    </ol>
+
+    <h3>3 · Share one atlas (the good part)</h3>
+    <p>Out of the box, each phone keeps its own data. To share one live dataset, connect a free Supabase database — about five minutes, once:</p>
+    <ol>
+      <li>Create a free account at <code>supabase.com</code> → New project (any name, any region, free tier).</li>
+      <li>In the project, open <b>SQL Editor</b>, paste the snippet below, and Run.</li>
+      <li>Go to <b>Settings → API</b>. Copy the <b>Project URL</b> and the <b>anon public</b> key.</li>
+      <li>Back in Atlas: ☰ menu → Shared atlas → paste both → <b>Connect &amp; merge</b>.</li>
+      <li>On your wife's phone: open the same site, set her name under Profile, and connect with the same URL + key. Done — one atlas, two phones.</li>
+    </ol>
+    <pre class="codeblock" id="g-sql">${TABLE_SQL}</pre>
+    <button class="copybtn" id="g-copy">Copy SQL</button>
+    <p><b>Honest security note:</b> the anon key + open policy means anyone who has both could read or edit your list of restaurants. For a two-person family atlas of public restaurants, that's a reasonable trade. Don't reuse this project for anything sensitive.</p>
+
+    <h3>4 · Profiles &amp; ratings</h3>
+    <p>Set a name in ☰ → Profile on each phone. Every place then gets an "Our takes" section — each of you rates 1–5 stars with a short take, side by side. The list view shows your combined average.</p>
+
+    <h3>5 · Keeping data fresh</h3>
+    <p><b>Wikidata pull</b> (☰ menu) imports restaurants tagged with Michelin awards from the open Wikidata database — a legitimate public API, freely licensed. Re-run it occasionally. Imports arrive unverified.</p>
+    <p><b>Verify as you go:</b> starter places are best-effort — before planning a day around one, tap it, check it in Maps, then "Mark as verified."</p>
+
+    <h3>6 · Backups</h3>
+    <p>☰ → Export downloads a JSON file of everything, ratings included. Do it before switching phones or clearing the browser. Import restores it anywhere.</p>
+  </div>`;
+  openSheet("Setup guide");
+  document.getElementById("g-copy").onclick=()=>{
+    navigator.clipboard.writeText(TABLE_SQL).then(()=>{document.getElementById("g-copy").textContent="Copied ✓";});
+  };
+}
+
+/* ---------- SUPABASE SYNC ----------
+   Minimal REST client. Table: places(id text pk, data jsonb).
+   Strategy: pull-merge on connect/open/sync; targeted upsert or
+   delete on every change. Last write wins — fine for two people. */
+function loadCloudCfg(){try{const c=JSON.parse(localStorage.getItem(CLOUDKEY));return c&&c.url&&c.key?c:null;}catch(e){return null;}}
+function cloudHeaders(){return {apikey:CLOUD.key,Authorization:"Bearer "+CLOUD.key,"Content-Type":"application/json"};}
+async function cloudPullMerge(){
+  if(!CLOUD)return false;
+  try{
+    const r=await fetch(CLOUD.url+"/rest/v1/places?select=id,data",{headers:cloudHeaders()});
+    if(!r.ok)return false;
+    const rows=await r.json();
+    const remote=new Map(rows.map(x=>[x.id,x.data]));
+    // remote is the shared truth; keep local places remote doesn't know yet (by name), then push them
+    const remoteNames=new Set([...remote.values()].map(d=>(d.name||"").toLowerCase()));
+    const localOnly=PLACES.filter(p=>!remote.has(p.id)&&!remoteNames.has(p.name.toLowerCase()));
+    PLACES=[...remote.values(),...localOnly];
+    persistLocal();
+    if(localOnly.length)cloudUpsert(localOnly);
+    return true;
+  }catch(e){return false;}
+}
+async function cloudUpsert(recs){
+  if(!CLOUD||!recs||!recs.length)return false;
+  try{
+    const body=JSON.stringify(recs.map(p=>({id:p.id,data:p,updated_at:new Date().toISOString()})));
+    const r=await fetch(CLOUD.url+"/rest/v1/places",{method:"POST",
+      headers:{...cloudHeaders(),Prefer:"resolution=merge-duplicates"},body});
+    return r.ok;
+  }catch(e){return false;}
+}
+async function cloudDelete(id){
+  if(!CLOUD)return false;
+  try{
+    const r=await fetch(CLOUD.url+"/rest/v1/places?id=eq."+encodeURIComponent(id),{method:"DELETE",headers:cloudHeaders()});
+    return r.ok;
+  }catch(e){return false;}
+}
+function syncBadge(){document.getElementById("btn-menu").classList.toggle("synced",!!CLOUD);}
+
+/* ---------- WIKIDATA LIVE PULL ---------- */
+async function wikidataPull(){
+  const st=document.getElementById("m-status");
+  if(st)st.textContent="Finding Michelin award entities on Wikidata…";
+  try{
+    const sr=await fetch("https://www.wikidata.org/w/api.php?action=wbsearchentities&search=Michelin%20star&language=en&type=item&limit=20&format=json&origin=*");
+    const sj=await sr.json();
+    const qids=(sj.search||[])
+      .filter(e=>/michelin star/i.test(e.label||"")||/michelin star/i.test(e.description||""))
+      .map(e=>e.id).slice(0,8);
+    if(!qids.length){if(st)st.textContent="Couldn't locate Michelin award entities — Wikidata's modeling may have changed.";return;}
+    if(st)st.textContent="Querying starred restaurants (can take ~20s)…";
+    const sparql=`SELECT ?item ?itemLabel ?coord ?awardLabel ?countryLabel WHERE {
+      VALUES ?award { ${qids.map(q=>"wd:"+q).join(" ")} }
+      ?item p:P166 ?aw . ?aw ps:P166 ?award .
+      ?item wdt:P625 ?coord .
+      SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
+    } LIMIT 4000`;
+    const qr=await fetch("https://query.wikidata.org/sparql?format=json&query="+encodeURIComponent(sparql),{headers:{Accept:"application/sparql-results+json"}});
+    const qj=await qr.json();
+    const rows=(qj.results&&qj.results.bindings)||[];
+    if(!rows.length){if(st)st.textContent="Query returned nothing — try again later.";return;}
+    const have=new Set(PLACES.map(p=>p.name.toLowerCase()));
+    const added=[];
+    rows.forEach(b=>{
+      const name=b.itemLabel&&b.itemLabel.value;if(!name||have.has(name.toLowerCase()))return;
+      const m=/Point\(([-\d.]+) ([-\d.]+)\)/.exec(b.coord.value||"");if(!m)return;
+      const award=(b.awardLabel&&b.awardLabel.value||"").toLowerCase();
+      let stars=1;
+      if(/(three|3)/.test(award))stars=3;else if(/(two|2)/.test(award))stars=2;
+      const rec={id:uid(),name,cuisine:"",address:(b.countryLabel&&b.countryLabel.value)||"",
+        accolades:["michelin"],stars,fam:false,lat:+m[2],lng:+m[1],
+        note:"Imported from Wikidata ("+(b.awardLabel?b.awardLabel.value:"Michelin")+"). Star data may be historical — verify.",v:false,ratings:{}};
+      PLACES.push(rec);have.add(name.toLowerCase());added.push(rec);
+    });
+    persistLocal();if(added.length)cloudUpsert(added);
+    renderMarkers();
+    if(st)st.textContent=added.length?`Added ${added.length} places from Wikidata. All marked unverified.`:"No new places — everything found was already in your atlas.";
+  }catch(e){
+    if(st)st.textContent="Wikidata pull failed (connection or service busy). Try again in a minute.";
+  }
+}
+
+/* ---------- BACKUP ---------- */
+function exportData(){
+  const blob=new Blob([JSON.stringify(PLACES,null,2)],{type:"application/json"});
+  const url=URL.createObjectURL(blob);const a=document.createElement("a");
+  a.href=url;a.download=`atlas-backup-${new Date().toISOString().slice(0,10)}.json`;a.click();
+  URL.revokeObjectURL(url);
+}
+function importData(e){
+  const file=e.target.files[0];if(!file)return;
+  const rd=new FileReader();
+  rd.onload=()=>{
+    try{
+      const data=JSON.parse(rd.result);
+      if(!Array.isArray(data))throw 0;
+      const clean=data.filter(p=>p&&p.name&&typeof p.lat==="number"&&typeof p.lng==="number")
+        .map(p=>({id:p.id||uid(),name:p.name,cuisine:p.cuisine||"",address:p.address||"",note:p.note||"",
+          accolades:Array.isArray(p.accolades)?p.accolades:[],stars:p.stars||0,fam:!!p.fam,lat:p.lat,lng:p.lng,v:!!p.v,ratings:p.ratings||{}}));
+      if(confirm(`Import ${clean.length} places? This replaces your current atlas on this device.`)){
+        PLACES=clean;persistLocal();cloudUpsert(PLACES);renderMarkers();closeSheet();
+      }
+    }catch(err){alert("That file didn't look like an Atlas backup.");}
+  };
+  rd.readAsText(file);
+}
+
+/* ---------- LOCATE + WIRING ---------- */
+document.getElementById("btn-locate").onclick=()=>{if(navigator.geolocation)map.locate({setView:true,maxZoom:13});};
+map.on("locationerror",()=>{});
+document.getElementById("btn-add").onclick=()=>openForm(null);
+document.getElementById("btn-menu").onclick=openMenu;
+document.getElementById("btn-search").onclick=openSearch;
+document.getElementById("count-pill").onclick=openList;
+document.getElementById("count-pill").onkeydown=e=>{if(e.key==="Enter")openList();};
+
+/* ---------- STORAGE ---------- */
+function loadLocal(){
+  try{
+    const raw=localStorage.getItem(KEY);
+    if(raw){const d=JSON.parse(raw);if(Array.isArray(d))return d.map(p=>({ratings:{},...p}));}
+  }catch(e){}
+  return SEED.map(expandSeed);
+}
+function persistLocal(){try{localStorage.setItem(KEY,JSON.stringify(PLACES));}catch(e){}}
+
+/* ---------- UTIL ---------- */
+function uid(){return "p"+Math.random().toString(36).slice(2,9)+Date.now().toString(36).slice(-3);}
+function esc(s){return (s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+
+/* ---------- GO ---------- */
+renderFilters();
+renderMarkers();
+syncBadge();
+if(CLOUD){cloudPullMerge().then(ok=>{if(ok)renderMarkers();});}
+</script>
+</body>
+</html>
