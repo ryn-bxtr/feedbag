@@ -646,7 +646,7 @@ function openWelcome(){
     <p class="welcome-logo">Feedbag</p>
     <p class="welcome-sub">A shared map of tables worth the trip —<br>Michelin, Beard, Triple-D, and our own finds.</p>
     <label class="fld"><span>Your first name</span>
-      <input type="text" id="w-name" placeholder="e.g. Ryan" autocomplete="given-name"/></label>
+      <input type="text" id="w-name" placeholder="e.g. Cosmo" autocomplete="given-name"/></label>
     <button class="primary" id="w-go">Start exploring</button>
     <div class="seednote">Your name signs the ratings you leave ("give it feedbag"). Everything else is shared automatically — nothing to set up.</div>`;
   openSheet("Welcome");
@@ -654,10 +654,12 @@ function openWelcome(){
     const n=document.getElementById("w-name").value.trim();
     if(!n){document.getElementById("w-name").focus();return;}
     const btn=document.getElementById("w-go");btn.disabled=true;btn.textContent="Checking name…";
-    const res=await claimName(n);
+    const res=await claimFlow(n);
     btn.disabled=false;btn.textContent="Start exploring";
-    if(!res.ok&&res.reason==="taken"){alert(CLAIM_MSG.taken(n));return;}
-    PROFILE=n;localStorage.setItem(PROFKEY,n);closeSheet();
+    if(!res.ok&&res.reason==="taken"){return;}
+    PROFILE=n;localStorage.setItem(PROFKEY,n);
+    if(res.fresh)alert("You're in as "+n+"!\n\nYour Feedbag code: "+res.code+"\n\nSave it — enter it with your name to be you on another device.");
+    closeSheet();
   };
 }
 
@@ -912,6 +914,7 @@ function openMenu(){
       <label class="fld"><span>Your name (signs your ratings)</span>
         <input type="text" id="m-name" value="${esc(PROFILE)}" placeholder="e.g. Ryan"/></label>
       <button class="ghost" id="m-savename">Save name</button>
+      ${CLAIM_OK?`<p class="geohint">Feedbag code for this name: <b>${esc(fbCode())}</b> — enter it with your name to sign in on another device.</p>`:""}
     </div>
     <div class="menusec">
       <span class="fldlabel">Shared feedbag <span style="color:var(--pick)">· automatic</span></span>
@@ -935,10 +938,10 @@ function openMenu(){
     const n=document.getElementById("m-name").value.trim();
     if(!n){PROFILE="";CLAIM_OK=false;localStorage.setItem(PROFKEY,"");setStatus("m-cloudstatus","Name cleared.");return;}
     setStatus("m-cloudstatus","Checking name…");
-    const res=await claimName(n);
-    if(!res.ok&&res.reason==="taken"){setStatus("m-cloudstatus",CLAIM_MSG.taken(n));return;}
+    const res=await claimFlow(n);
+    if(!res.ok&&res.reason==="taken"){setStatus("m-cloudstatus",'"'+n+'" belongs to someone else. Try a variant.');return;}
     PROFILE=n;localStorage.setItem(PROFKEY,n);
-    setStatus("m-cloudstatus",res.ok?`Hi, ${n}. This name is yours — ratings save under it.`:CLAIM_MSG.offline());
+    setStatus("m-cloudstatus",res.ok?`Hi, ${n}. Your Feedbag code is ${fbCode()} — enter it with your name on other devices.`:"Couldn't verify right now (connection). It will retry on next open.");
     openMenu();
   };
   document.getElementById("m-sync").onclick=async()=>{
@@ -1072,30 +1075,40 @@ function syncBadge(on){document.getElementById("btn-menu").classList.toggle("syn
    Honest limit: this prevents collisions and casual admin
    impersonation, not a determined attacker with dev tools. */
 let CLAIM_OK=false;
-function devToken(){
+function fbCode(){
   let t=localStorage.getItem("feedbag-token");
-  if(!t){t=uid()+uid()+uid();localStorage.setItem("feedbag-token",t);}
+  if(!t){
+    const A="ABCDEFGHJKMNPQRSTUVWXYZ23456789";
+    t=Array.from({length:6},()=>A[Math.floor(Math.random()*A.length)]).join("");
+    localStorage.setItem("feedbag-token",t);
+  }
   return t;
 }
-async function claimName(name){
+function setFbCode(c){localStorage.setItem("feedbag-token",c);}
+async function claimName(name, codeOverride){
+  const code=codeOverride||fbCode();
   try{
-    const q=await fetch(CLOUD.url+"/rest/v1/profiles?person=eq."+encodeURIComponent(name)+"&select=person,token",{headers:cloudHeaders()});
-    if(!q.ok)return {ok:false,reason:"offline"};
-    const rows=await q.json();
-    if(rows.length){
-      if(rows[0].token===devToken()){CLAIM_OK=true;return {ok:true};}
-      return {ok:false,reason:"taken"};
-    }
-    const ins=await fetch(CLOUD.url+"/rest/v1/profiles",{method:"POST",headers:cloudHeaders(),
-      body:JSON.stringify([{person:name,token:devToken()}])});
-    if(ins.ok){CLAIM_OK=true;return {ok:true};}
+    const r=await fetch(CLOUD.url+"/rest/v1/rpc/feedbag_claim",{method:"POST",headers:cloudHeaders(),
+      body:JSON.stringify({p_name:name,p_code:code})});
+    if(!r.ok)return {ok:false,reason:"offline"};
+    const res=await r.json();
+    if(res==="claimed"){CLAIM_OK=true;return {ok:true,fresh:true,code:code};}
+    if(res==="ok"){CLAIM_OK=true;if(codeOverride)setFbCode(codeOverride);return {ok:true};}
     return {ok:false,reason:"taken"};
   }catch(e){return {ok:false,reason:"offline"};}
 }
-const CLAIM_MSG={
-  taken:n=>`"${n}" is already claimed on another device. Add a last initial (e.g. ${n} B.) — or if this is you on a new phone, ask Ryan to free the name.`,
-  offline:()=>"Couldn't verify the name right now (connection). Saved locally — it will verify on next sync."
-};
+async function claimFlow(name){
+  let res=await claimName(name);
+  if(res.ok)return res;
+  if(res.reason==="taken"){
+    const c=prompt('"'+name+'" is already claimed.\n\nIf that is you on another device, enter your Feedbag code:');
+    if(c&&c.trim()){
+      res=await claimName(name,c.trim().toUpperCase());
+      if(!res.ok&&res.reason==="taken")alert("That code did not match. Pick a different name (add a last initial), or ask Ryan to free this one.");
+    }
+  }
+  return res;
+}
 
 /* ---------- WIKIDATA ---------- */
 async function wikidataPull(){
