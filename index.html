@@ -1077,37 +1077,47 @@ function syncBadge(on){document.getElementById("btn-menu").classList.toggle("syn
 let CLAIM_OK=false;
 function fbCode(){
   let t=localStorage.getItem("feedbag-token");
-  if(!t){
-    const A="ABCDEFGHJKMNPQRSTUVWXYZ23456789";
-    t=Array.from({length:6},()=>A[Math.floor(Math.random()*A.length)]).join("");
-    localStorage.setItem("feedbag-token",t);
-  }
+  if(!t){t=genCode();localStorage.setItem("feedbag-token",t);}
   return t;
 }
 function setFbCode(c){localStorage.setItem("feedbag-token",c);}
-async function claimName(name, codeOverride){
-  const code=codeOverride||fbCode();
-  try{
-    const r=await fetch(CLOUD.url+"/rest/v1/rpc/feedbag_claim",{method:"POST",headers:cloudHeaders(),
-      body:JSON.stringify({p_name:name,p_code:code})});
-    if(!r.ok)return {ok:false,reason:"offline"};
-    const res=await r.json();
-    if(res==="claimed"){CLAIM_OK=true;return {ok:true,fresh:true,code:code};}
-    if(res==="ok"){CLAIM_OK=true;if(codeOverride)setFbCode(codeOverride);return {ok:true};}
-    return {ok:false,reason:"taken"};
-  }catch(e){return {ok:false,reason:"offline"};}
+function genCode(){
+  const A="ABCDEFGHJKMNPQRSTUVWXYZ23456789";
+  return Array.from({length:6},()=>A[Math.floor(Math.random()*A.length)]).join("");
 }
+async function rpc(fn,body){
+  try{
+    const r=await fetch(CLOUD.url+"/rest/v1/rpc/"+fn,{method:"POST",headers:cloudHeaders(),body:JSON.stringify(body)});
+    if(!r.ok)return null;
+    return await r.json();
+  }catch(e){return null;}
+}
+/* verify-only: never inserts. Used on startup. */
+async function checkClaim(name){
+  const res=await rpc("feedbag_check",{p_name:name,p_code:fbCode()});
+  CLAIM_OK=(res==="ok");
+  return res;
+}
+/* deliberate claim: fresh names get a brand-new code; taken names prompt for one. */
 async function claimFlow(name){
-  let res=await claimName(name);
-  if(res.ok)return res;
-  if(res.reason==="taken"){
+  let st=await rpc("feedbag_check",{p_name:name,p_code:fbCode()});
+  if(st==="ok"){CLAIM_OK=true;return {ok:true};}
+  if(st==="free"){
+    const code=genCode();setFbCode(code);
+    const r=await rpc("feedbag_claim",{p_name:name,p_code:code});
+    if(r==="claimed"||r==="ok"){CLAIM_OK=true;return {ok:true,fresh:true,code:code};}
+    st=(r==="taken")?"taken":st;
+  }
+  if(st==="taken"){
     const c=prompt('"'+name+'" is already claimed.\n\nIf that is you on another device, enter your Feedbag code:');
     if(c&&c.trim()){
-      res=await claimName(name,c.trim().toUpperCase());
-      if(!res.ok&&res.reason==="taken")alert("That code did not match. Pick a different name (add a last initial), or ask Ryan to free this one.");
+      const r=await rpc("feedbag_claim",{p_name:name,p_code:c.trim().toUpperCase()});
+      if(r==="ok"){CLAIM_OK=true;setFbCode(c.trim().toUpperCase());return {ok:true};}
+      alert("That code did not match. Pick a different name (add a last initial), or ask Ryan to free this one.");
     }
+    return {ok:false,reason:"taken"};
   }
-  return res;
+  return {ok:false,reason:"offline"};
 }
 
 /* ---------- WIKIDATA ---------- */
@@ -1225,7 +1235,7 @@ renderMarkers();
 syncBadge(true);
 tryLocate(false);
 cloudPullMerge().then(ok=>{syncBadge(ok);renderMarkers();});
-if(!PROFILE){setTimeout(openWelcome,600);}else{claimName(PROFILE);}
+if(!PROFILE){setTimeout(openWelcome,600);}else{checkClaim(PROFILE);}
 </script>
 </body>
 </html>
