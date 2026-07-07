@@ -698,9 +698,11 @@ function openForm(place){
   openSheet(place?"Edit place":"Add a place");
   document.querySelectorAll("#f-acc .accopt").forEach(el=>{
     el.onclick=e=>{
-      if(e.target.tagName!=="INPUT"){const cb=el.querySelector("input");cb.checked=!cb.checked;}
-      el.dataset.on=el.querySelector("input").checked;
-      if(el.dataset.acc==="michelin") document.getElementById("f-starswrap").style.display=el.querySelector("input").checked?"":"none";
+      e.preventDefault();
+      const cb=el.querySelector("input");
+      cb.checked=!cb.checked;
+      el.dataset.on=cb.checked;
+      if(el.dataset.acc==="michelin") document.getElementById("f-starswrap").style.display=cb.checked?"":"none";
     };
   });
   document.getElementById("f-geo").onclick=geocode;
