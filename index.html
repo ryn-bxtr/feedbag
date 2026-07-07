@@ -11,7 +11,7 @@
 <link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png" />
 <link rel="icon" href="favicon-16.png" sizes="16x16" type="image/png" />
 <link rel="apple-touch-icon" href="apple-touch-icon-180.png" />
-<title>Feedbag — a table worth the trip</title>
+<title>Feedbag - a table worth the trip</title>
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Hanken+Grotesk:wght@400;500;600&display=swap" rel="stylesheet" />
@@ -175,7 +175,7 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 /* ============================================================
-   FEEDBAG v4 — a shared, curated map of tables worth the trip.
+   FEEDBAG v4 - a shared, curated map of tables worth the trip.
    Built-in shared sync (Supabase), per-person "feedbag" ratings
    in their own table, Near Me distances, Bib Gourmand lens,
    Resy tag, archive-not-delete, zero-setup onboarding.
@@ -208,7 +208,7 @@ const SEED=[
 /* ---------- COPENHAGEN + SCANDINAVIA ---------- */
 ["Geranium","New Nordic",55.7057,12.5722,"Copenhagen, Denmark","M3",0,"Top floor of the national stadium."],
 ["Alchemist","Avant-garde",55.6910,12.6110,"Copenhagen, Denmark","M2",0,"50-course 'holistic cuisine' theater. Books out instantly."],
-["noma","New Nordic",55.6837,12.6103,"Copenhagen, Denmark","M3",0,"Format in transition — check current status before planning around it."],
+["noma","New Nordic",55.6837,12.6103,"Copenhagen, Denmark","M3",0,"Format in transition - check current status before planning around it."],
 ["Jordnær","Seafood tasting",55.7460,12.5480,"Gentofte, Denmark","M2",0,"Short train ride north of Copenhagen."],
 ["Kadeau","Bornholm Nordic",55.6717,12.5936,"Copenhagen, Denmark","M2",0,"Christianshavn. Bornholm island larder."],
 ["Kong Hans Kælder","Classic French",55.6784,12.5818,"Copenhagen, Denmark","M1",0,"Gothic cellar, old-school luxury."],
@@ -231,7 +231,7 @@ const SEED=[
 ["L'Ambroisie","Classic French",48.8554,2.3654,"Paris, France","M3",0,"Place des Vosges."],
 ["Pavillon Ledoyen (Alléno)","French",48.8662,2.3170,"Paris, France","M3",0,""],
 ["Septime","Modern bistro",48.8534,2.3805,"Paris, France","M1",0,"The hardest casual booking in Paris."],
-["Le Jules Verne","French",48.8583,2.2945,"Paris, France","M1",0,"Inside the Eiffel Tower — kids love the ride up."],
+["Le Jules Verne","French",48.8583,2.2945,"Paris, France","M1",0,"Inside the Eiffel Tower - kids love the ride up."],
 ["Mirazur","Riviera tasting",43.7822,7.5262,"Menton, France","M3",0,"Border of Italy, over the sea."],
 ["Maison Troisgros","French",46.0027,3.9720,"Ouches, France","M3",0,"Legendary family, countryside setting."],
 ["Georges Blanc","French",46.2202,4.9902,"Vonnas, France","M3",0,""],
@@ -267,7 +267,7 @@ const SEED=[
 ["Sketch (Lecture Room & Library)","French",51.5125,-0.1410,"London, England","M3",0,""],
 ["Core by Clare Smyth","Modern British",51.5120,-0.2000,"London, England","M3",0,"Notting Hill."],
 ["L'Enclume","Farm-driven",54.2010,-2.9540,"Cartmel, England","M3",0,"Lake District village."],
-["Moor Hall","Modern British",53.5390,-2.8920,"Aughton, England","M3",0,"Recently elevated — verify."],
+["Moor Hall","Modern British",53.5390,-2.8920,"Aughton, England","M3",0,"Recently elevated - verify."],
 ["Ynyshir","Fire + spice tasting",52.5480,-3.9090,"Eglwys Fach, Wales","M2",0,"Loud, meat-heavy, remote."],
 ["Restaurant Patrick Guilbaud","French",53.3400,-6.2510,"Dublin, Ireland","M2",0,"Ireland's benchmark."],
 /* ---------- GERMANY / AUSTRIA / SWITZERLAND ---------- */
@@ -277,7 +277,7 @@ const SEED=[
 ["Vendôme","Creative",50.9860,7.1310,"Bergisch Gladbach, Germany","M2",0,""],
 ["JAN","Creative",48.1450,11.5560,"Munich, Germany","M3",0,""],
 ["Tantris","French",48.1637,11.5866,"Munich, Germany","M2",0,"70s design landmark."],
-["Steirereck","Modern Austrian",48.2050,16.3810,"Vienna, Austria","M3",0,"In the Stadtpark. Star level recently changed — verify."],
+["Steirereck","Modern Austrian",48.2050,16.3810,"Vienna, Austria","M3",0,"In the Stadtpark. Star level recently changed - verify."],
 ["Amador","Creative",48.2460,16.3560,"Vienna, Austria","M3",0,""],
 ["Schloss Schauenstein","Swiss",46.7220,9.4440,"Fürstenau, Switzerland","M3",0,"Andreas Caminada's castle."],
 ["Restaurant de l'Hôtel de Ville","French",46.5450,6.5750,"Crissier, Switzerland","M3",0,""],
@@ -286,8 +286,8 @@ const SEED=[
 /* ---------- BENELUX ---------- */
 ["De Librije","Creative",52.5140,6.0930,"Zwolle, Netherlands","M3",0,""],
 ["Ciel Bleu","Creative",52.3480,4.8930,"Amsterdam, Netherlands","M2",0,"23rd floor."],
-["The Jane","Creative",51.2100,4.4270,"Antwerp, Belgium","M2",0,"Former chapel. May have been promoted — verify."],
-["Hof van Cleve","Flemish",50.9440,3.5230,"Kruisem, Belgium","M3",0,"Chef transition underway — verify."],
+["The Jane","Creative",51.2100,4.4270,"Antwerp, Belgium","M2",0,"Former chapel. May have been promoted - verify."],
+["Hof van Cleve","Flemish",50.9440,3.5230,"Kruisem, Belgium","M3",0,"Chef transition underway - verify."],
 /* ---------- NYC ---------- */
 ["Le Bernardin","Seafood",40.7615,-73.9819,"New York, NY","M3,JB",0,"Eric Ripert."],
 ["Eleven Madison Park","Plant-based tasting",40.7417,-73.9872,"New York, NY","M3,JB",0,""],
@@ -305,7 +305,7 @@ const SEED=[
 ["Saga","Tasting",40.7070,-74.0070,"New York, NY","M2",0,"63 floors up in FiDi."],
 ["Le Coucou","French",40.7190,-73.9980,"New York, NY","M1,JB",0,""],
 ["Crown Shy","American",40.7060,-74.0070,"New York, NY","M1",0,""],
-["Cote","Korean steakhouse",40.7410,-73.9930,"New York, NY","M1",1,"Steak + smokeless grills — older kids do great here."],
+["Cote","Korean steakhouse",40.7410,-73.9930,"New York, NY","M1",1,"Steak + smokeless grills - older kids do great here."],
 ["Casa Enrique","Mexican",40.7420,-73.9540,"Long Island City, NY","M1",1,"Starred Mexican that still feels neighborhood."],
 ["Rezdôra","Emilian pasta",40.7400,-73.9890,"New York, NY","M1",0,""],
 ["Gramercy Tavern","American",40.7385,-73.9885,"New York, NY","M1,JB",1,"The tavern room walks in, kids welcome."],
@@ -392,13 +392,13 @@ const SEED=[
 ["Jônt","Tasting",38.9170,-77.0320,"Washington, DC","M2",0,""],
 ["Rose's Luxury","American",38.8790,-76.9950,"Washington, DC","M1",0,"Barracks Row."],
 ["Tail Up Goat","Mediterranean",38.9210,-77.0450,"Washington, DC","M1",0,""],
-["Maydan","Levantine fire",38.9150,-77.0280,"Washington, DC","M1",1,"Open hearth in the middle — kids are mesmerized."],
+["Maydan","Levantine fire",38.9150,-77.0280,"Washington, DC","M1",1,"Open hearth in the middle - kids are mesmerized."],
 ["Ben's Chili Bowl","Half-smokes",38.9170,-77.0280,"Washington, DC","JB",1,"U Street institution since 1958."],
 ["Zahav","Israeli",39.9469,-75.1445,"Philadelphia, PA","JB",1,"The hummus. Early seatings work with kids."],
 ["Vetri Cucina","Italian tasting",39.9490,-75.1620,"Philadelphia, PA","JB",0,""],
 ["Friday Saturday Sunday","American",39.9490,-75.1720,"Philadelphia, PA","M1,JB",0,"Beard Outstanding Restaurant + a star in Philly's first Michelin guide (2025)."],
 ["John's Roast Pork","Sandwiches",39.9230,-75.1440,"Philadelphia, PA","JB",1,"The roast pork > the cheesesteak. Fight me."],
-["Primanti Bros. (Strip District)","Sandwiches",40.4500,-79.9880,"Pittsburgh, PA","DDD",1,"The original. Fries in the sandwich — your home-turf entry."],
+["Primanti Bros. (Strip District)","Sandwiches",40.4500,-79.9880,"Pittsburgh, PA","DDD",1,"The original. Fries in the sandwich - your home-turf entry."],
 ["DeLuca's Diner","Diner",40.4520,-79.9850,"Pittsburgh, PA","DDD",1,"Strip District breakfast."],
 /* ---------- MIDWEST + BEYOND ---------- */
 ["Owamni","Indigenous",44.9810,-93.2600,"Minneapolis, MN","JB",0,"Sean Sherman. Decolonized menu over St. Anthony Falls."],
@@ -436,25 +436,25 @@ const SEED=[
 ["Tatemo","Mexican (masa tasting)",29.8020,-95.4180,"Houston, TX","M1",0,"Heirloom corn tasting menu."],
 ["CorkScrew BBQ","Barbecue",30.0800,-95.4170,"Spring, TX","M1",1,"Starred BBQ north of Houston."],
 ["Tatsu Dallas","Sushi omakase",32.7840,-96.7830,"Dallas, TX","M1",0,"Deep Ellum."],
-["Mamani","French bistronomie",32.7930,-96.8040,"Dallas, TX","M1",0,"New star 2025 — ex-Robuchon Vegas chef."],
+["Mamani","French bistronomie",32.7930,-96.8040,"Dallas, TX","M1",0,"New star 2025 - ex-Robuchon Vegas chef."],
 ["Mixtli","Modern Mexican",29.4430,-98.4790,"San Antonio, TX","M1",0,"Regional Mexican tasting."],
 ["Isidore","Texan live-fire",29.4440,-98.4800,"San Antonio, TX","M1",0,"Pearl District. New star + Green Star 2025."],
 ["Nicosi","Dessert tasting",29.4440,-98.4795,"San Antonio, TX","M1",0,"All-dessert tasting counter. New star 2025."],
-/* ---------- FLORIDA (Michelin FL guide — verify current) ---------- */
+/* ---------- FLORIDA (Michelin FL guide - verify current) ---------- */
 ["L'Atelier de Joel Robuchon Miami","French",25.7990,-80.1990,"Miami, FL","M2",0,"Design District."],
 ["Ariete","Contemporary Cuban-American",25.7290,-80.2420,"Coconut Grove, FL","M1",0,""],
 ["Boia De","Italian-ish",25.8180,-80.1920,"Miami, FL","M1",0,"Tiny strip-mall stunner."],
 ["Stubborn Seed","Contemporary",25.7690,-80.1330,"Miami Beach, FL","M1",0,""],
-["Victoria & Albert's","American tasting",28.4110,-81.5880,"Orlando, FL","M1",0,"Inside Disney's Grand Floridian — the starred date night of your Disney trip."],
+["Victoria & Albert's","American tasting",28.4110,-81.5880,"Orlando, FL","M1",0,"Inside Disney's Grand Floridian - the starred date night of your Disney trip."],
 ["Soseki","Modern omakase",28.5990,-81.3280,"Winter Park, FL","M1",0,""],
 ["Capa","Steakhouse (Spanish)",28.3850,-81.5510,"Orlando, FL","M1",0,"Four Seasons Orlando rooftop."],
 ["Kadence","Sushi",28.5650,-81.3530,"Orlando, FL","M1",0,"Audubon Park."],
-["Lilac","Contemporary",27.9420,-82.4520,"Tampa, FL","M1",0,"Tampa EDITION hotel — verify current status."],
-/* ---------- COLORADO (Michelin CO guide — verify current) ---------- */
+["Lilac","Contemporary",27.9420,-82.4520,"Tampa, FL","M1",0,"Tampa EDITION hotel - verify current status."],
+/* ---------- COLORADO (Michelin CO guide - verify current) ---------- */
 ["The Wolf's Tailor","Boundary-pushing tasting",39.7770,-105.0060,"Denver, CO","M1",0,""],
 ["Bruto","Open-fire tasting",39.7420,-104.9920,"Denver, CO","M1",0,"Masa-focused, Dairy Block."],
 ["Beckon","Counter tasting",39.7610,-104.9790,"Denver, CO","M1",0,""],
-["Bosq","Alpine foraged",39.1900,-106.8210,"Aspen, CO","M2",0,"Promoted to two stars — verify."],
+["Bosq","Alpine foraged",39.1900,-106.8210,"Aspen, CO","M2",0,"Promoted to two stars - verify."],
 /* ---------- BOSTON (first Michelin guide, Nov 2025) ---------- */
 ["311 Omakase","Sushi omakase",42.3430,-71.0720,"Boston, MA","M1",0,"Boston's first-ever star (2025). South End."],
 ["Neptune Oyster","Seafood",42.3630,-71.0560,"Boston, MA","PICK",0,"Michelin Recommended. The hot buttered lobster roll. No reservations."],
@@ -462,76 +462,76 @@ const SEED=[
 ["PAGU","Japanese-Spanish",42.3650,-71.1040,"Cambridge, MA","BIB",1,"Michelin Bib Gourmand. Tracy Chang."],
 ["Fox & the Knife","Italian enoteca",42.3380,-71.0480,"South Boston, MA","BIB",0,"Michelin Bib Gourmand. Karen Akunowicz (Beard winner)."],
 ["Mahaniyom","Thai small plates",42.3320,-71.1030,"Brookline, MA","BIB",0,"Bib Gourmand + Michelin's Exceptional Cocktails award (2025)."],
-["Santarpio's Pizza","Pizza + lamb skewers",42.3720,-71.0390,"East Boston, MA","DDD",1,"Old-school Eastie institution — verify the TV lore."],
+["Santarpio's Pizza","Pizza + lamb skewers",42.3720,-71.0390,"East Boston, MA","DDD",1,"Old-school Eastie institution - verify the TV lore."],
 /* ---------- PHILADELPHIA (first Michelin guide, Nov 2025) ---------- */
 ["Her Place Supper Club","Dinner-party tasting",39.9520,-75.1650,"Philadelphia, PA","M1",0,"One seating, chalkboard menu. New star 2025."],
 ["Provenance","French-Korean",39.9410,-75.1450,"Philadelphia, PA","M1",0,"New star 2025."],
 /* ---------- CHICAGO + NYC 2025 updates ---------- */
 ["Feld","Seasonal tasting",41.8860,-87.6540,"Chicago, IL","M1",0,"New star + Green Star 2025."],
-["Sushi Sho","Edomae sushi",40.7530,-73.9810,"New York, NY","M3",0,"Promoted to three stars 2025 — Keiji Nakazawa."],
+["Sushi Sho","Edomae sushi",40.7530,-73.9810,"New York, NY","M3",0,"Promoted to three stars 2025 - Keiji Nakazawa."],
 ["Joo Ok","Modern Korean",40.7420,-73.9850,"New York, NY","M2",0,"Promoted to two stars 2025."],
 /* ---------- WIDER US NET (classics + TV, verify each) ---------- */
 ["Lotus of Siam","Northern Thai",36.1440,-115.1560,"Las Vegas, NV","JB",1,"America's Classic. The strip-mall Thai benchmark."],
 ["The Fry Bread House","Tohono O'odham fry bread",33.4800,-112.0850,"Phoenix, AZ","JB",1,"America's Classic."],
-["Al Ameer","Lebanese",42.3220,-83.1760,"Dearborn, MI","JB",1,"America's Classic — the heart of Dearborn's Lebanese scene."],
+["Al Ameer","Lebanese",42.3220,-83.1760,"Dearborn, MI","JB",1,"America's Classic - the heart of Dearborn's Lebanese scene."],
 ["Three Brothers","Serbian",42.9990,-87.8940,"Milwaukee, WI","JB",1,"America's Classic. Burek and slivovitz in an old Schlitz tavern."],
 ["Crown Candy Kitchen","Soda fountain + BLTs",38.6540,-90.1910,"St. Louis, MO","DDD",1,"1913 soda fountain. Malts, massive BLTs."],
 ["Bar-B-Q King","Drive-in BBQ",35.2200,-80.8680,"Charlotte, NC","DDD",1,"Curb service since 1959."],
-["Melt Bar and Grilled","Grilled cheese",41.4850,-81.7370,"Lakewood, OH","DDD",1,"Cleveland's over-the-top grilled cheese — verify current locations."],
+["Melt Bar and Grilled","Grilled cheese",41.4850,-81.7370,"Lakewood, OH","DDD",1,"Cleveland's over-the-top grilled cheese - verify current locations."],
 ["Fore Street","Wood-fired Maine",43.6580,-70.2530,"Portland, ME","JB",0,"Sam Hayward, Beard winner. Book the hearth room."],
 /* ---------- PHILADELPHIA LOCAL CUISINE (verified vs 2025-26 lists) ---------- */
-["Angelo's Pizzeria","Cheesesteak + pizza",39.9400,-75.1580,"Philadelphia, PA","PICK",1,"Local icon + Michelin Bib Gourmand. House-baked seeded rolls, Cooper Sharp. Cash only, no seats — eat on the curb like you mean it."],
+["Angelo's Pizzeria","Cheesesteak + pizza",39.9400,-75.1580,"Philadelphia, PA","PICK",1,"Local icon + Michelin Bib Gourmand. House-baked seeded rolls, Cooper Sharp. Cash only, no seats - eat on the curb like you mean it."],
 ["Dalessandro's Steaks","Cheesesteak",40.0290,-75.2050,"Philadelphia, PA","PICK",1,"Local icon + Michelin Bib Gourmand. Finely chopped, chunky onions, Roxborough since 1960."],
-["Del Rossi's","Cheesesteak",39.9620,-75.1450,"Philadelphia, PA","PICK",1,"Michelin Bib Gourmand (2025) — the new-school contender."],
-["Chubby's Steaks","Cheesesteak",40.0290,-75.2060,"Philadelphia, PA","PICK",1,"100 feet across from Dalessandro's — the REAL Philly rivalry. Counter + full bar, shorter line."],
+["Del Rossi's","Cheesesteak",39.9620,-75.1450,"Philadelphia, PA","PICK",1,"Michelin Bib Gourmand (2025) - the new-school contender."],
+["Chubby's Steaks","Cheesesteak",40.0290,-75.2060,"Philadelphia, PA","PICK",1,"100 feet across from Dalessandro's - the REAL Philly rivalry. Counter + full bar, shorter line."],
 ["Jim's South Street","Cheesesteak",39.9410,-75.1490,"Philadelphia, PA","PICK",1,"Art-deco South Street landmark, rebuilt after the 2022 fire. Whiz wit."],
-["Pat's King of Steaks","Cheesesteak",39.9331,-75.1590,"Philadelphia, PA","PICK",1,"Invented the steak sandwich in 1930. Tourist rite more than best-in-class — but the Pat's/Geno's corner at midnight is theater."],
-["Donkey's Place","Cheesesteak (poppy roll)",39.9370,-75.1060,"Camden, NJ","PICK",1,"Bourdain's pick for best cheesesteak — round poppy-seed roll, killer onions. 10 min over the bridge."],
-["Tommy DiNic's","Roast pork sandwich",39.9530,-75.1590,"Philadelphia, PA","PICK",1,"Local icon. Roast pork, sharp provolone, broccoli rabe — inside Reading Terminal."],
-["Uncle Gus' Steaks","Cheesesteak",39.9531,-75.1593,"Philadelphia, PA","PICK",1,"New 2025 — the DiNic's + Angelo's supergroup stall in Reading Terminal. One sandwich, done right."],
+["Pat's King of Steaks","Cheesesteak",39.9331,-75.1590,"Philadelphia, PA","PICK",1,"Invented the steak sandwich in 1930. Tourist rite more than best-in-class - but the Pat's/Geno's corner at midnight is theater."],
+["Donkey's Place","Cheesesteak (poppy roll)",39.9370,-75.1060,"Camden, NJ","PICK",1,"Bourdain's pick for best cheesesteak - round poppy-seed roll, killer onions. 10 min over the bridge."],
+["Tommy DiNic's","Roast pork sandwich",39.9530,-75.1590,"Philadelphia, PA","PICK",1,"Local icon. Roast pork, sharp provolone, broccoli rabe - inside Reading Terminal."],
+["Uncle Gus' Steaks","Cheesesteak",39.9531,-75.1593,"Philadelphia, PA","PICK",1,"New 2025 - the DiNic's + Angelo's supergroup stall in Reading Terminal. One sandwich, done right."],
 ["Reading Terminal Market","Market hall",39.9533,-75.1596,"Philadelphia, PA","PICK",1,"The whole food city under one 1893 train-shed roof. Perfect with a kid: everyone picks their own lunch."],
 ["Franklin Fountain","Ice cream parlor",39.9490,-75.1440,"Philadelphia, PA","PICK",1,"1900s soda fountain in Old City. The father-son dessert stop."],
 ["Pizzeria Beddia","Pizza",39.9720,-75.1350,"Philadelphia, PA","PICK",1,"Once called the best pizza in America. Fishtown."],
 ["Kalaya","Southern Thai",39.9670,-75.1340,"Philadelphia, PA","JB",0,"Nok Suntaranon, Beard winner. Fishtown. Bold, no-punches-pulled Thai."],
-["South Philly Barbacoa","Mexican barbacoa",39.9350,-75.1580,"Philadelphia, PA","JB",1,"Cristina Martinez, Beard winner. Weekend lamb barbacoa — go early."],
+["South Philly Barbacoa","Mexican barbacoa",39.9350,-75.1580,"Philadelphia, PA","JB",1,"Cristina Martinez, Beard winner. Weekend lamb barbacoa - go early."],
 ["Vernick Food & Drink","American",39.9510,-75.1770,"Philadelphia, PA","JB",0,"Greg Vernick, Beard winner. Rittenhouse."],
 /* ---------- LOCAL CUISINE: KC + EL PASO (the concept, seeded) ---------- */
-["Arthur Bryant's","KC barbecue",39.0790,-94.5560,"Kansas City, MO","PICK",1,"Local icon — burnt ends were born here. The sauce is the argument."],
+["Arthur Bryant's","KC barbecue",39.0790,-94.5560,"Kansas City, MO","PICK",1,"Local icon - burnt ends were born here. The sauce is the argument."],
 ["L&J Cafe","Border Mexican",31.7810,-106.4470,"El Paso, TX","PICK",1,"Local icon. 'The old place by the graveyard' since 1927."],
 ["Chico's Tacos","Flautas in broth",31.7690,-106.4260,"El Paso, TX","PICK",1,"Local icon rite of passage: flautas drowned in tomato broth under shredded cheese."],
-/* ---------- POLAND — VERIFIED 2026 NATIONWIDE GUIDE ---------- */
-["Arco by Paco Perez","Creative (Catalan-Baltic)",54.4030,18.5670,"Gdansk, Poland","M1",0,"Star confirmed 2026 — 33rd floor of Olivia Star tower, Baltic views."],
+/* ---------- POLAND - VERIFIED 2026 NATIONWIDE GUIDE ---------- */
+["Arco by Paco Perez","Creative (Catalan-Baltic)",54.4030,18.5670,"Gdansk, Poland","M1",0,"Star confirmed 2026 - 33rd floor of Olivia Star tower, Baltic views."],
 ["Eliksir","Modern Polish + cocktails",54.3520,18.6460,"Gdansk, Poland","PICK",0,"Poland's only Michelin Green Star. Food-and-cocktail pairing."],
 ["Hewelke","Modern Polish",54.3560,18.6440,"Gdansk, Poland","BIB",0,"Michelin Bib Gourmand."],
 ["Treinta y Tres","Latin-Polish",54.3500,18.6530,"Gdansk, Poland","BIB",0,"Michelin Bib Gourmand."],
-["1911 Restaurant","Modern Polish",54.4440,18.5670,"Sopot, Poland","BIB",0,"Michelin Bib Gourmand — in a 1911 villa, blocks from the pier."],
+["1911 Restaurant","Modern Polish",54.4440,18.5670,"Sopot, Poland","BIB",0,"Michelin Bib Gourmand - in a 1911 villa, blocks from the pier."],
 ["Vinissimo","Italian-Polish + wine",54.4420,18.5660,"Sopot, Poland","BIB",0,"Michelin Bib Gourmand."],
-["hub.praga","Modern Polish",52.2540,21.0350,"Warsaw, Poland","M1",0,"Warsaw's third star (2025). Praga side of the river — crayfish royale."],
+["hub.praga","Modern Polish",52.2540,21.0350,"Warsaw, Poland","M1",0,"Warsaw's third star (2025). Praga side of the river - crayfish royale."],
 ["Alon Omakase","Edomae sushi",52.2300,21.0100,"Warsaw, Poland","M1",0,"Poland's first Japanese star (2026)."],
 ["Rozbrat 20","Modern European",52.2220,21.0330,"Warsaw, Poland","M1",0,""],
 ["Giewont","Highland Polish",49.2770,19.8880,"Koscielisko, Poland","M1",0,"Tatra mountains, near Zakopane."],
 ["Muga","Modern Polish",52.4060,16.9290,"Poznan, Poland","M1",0,""],
 ["BABA","Reinvented Polish",51.1100,17.0300,"Wroclaw, Poland","M1",0,"Bib-to-star promotion 2026. Beata Sniechowska."],
 ["Most","Tasting counter",51.1130,17.0400,"Wroclaw, Poland","M1",0,"New star 2026, hidden inside Miedzy Mostami."],
-["Steampunk","Creative",49.9790,18.9440,"Pszczyna, Poland","M1",0,"New star 2026 — inside a converted water tower."],
-/* ---------- SWINOUJSCIE + FERRY ROUTE (review-vetted picks — verify) ---------- */
-["Kurna Chata","Traditional Polish",53.9100,14.2470,"Swinoujscie, Poland","PICK",1,"The most-loved local Polish spot in town — pierogi, zurek. Verify hours in season."],
+["Steampunk","Creative",49.9790,18.9440,"Pszczyna, Poland","M1",0,"New star 2026 - inside a converted water tower."],
+/* ---------- SWINOUJSCIE + FERRY ROUTE (review-vetted picks - verify) ---------- */
+["Kurna Chata","Traditional Polish",53.9100,14.2470,"Swinoujscie, Poland","PICK",1,"The most-loved local Polish spot in town - pierogi, zurek. Verify hours in season."],
 ["Rybna Chata","Baltic fish house",53.9210,14.2600,"Swinoujscie, Poland","PICK",1,"Fish restaurant in an old merchant villa. Confit sturgeon, fish soup."],
-["Restauracja Vinyl","Seasonal fusion",53.9200,14.2590,"Swinoujscie, Poland","PICK",0,"The town's ambitious kitchen — scallops, venison carpaccio. Best-reviewed in town."],
+["Restauracja Vinyl","Seasonal fusion",53.9200,14.2590,"Swinoujscie, Poland","PICK",0,"The town's ambitious kitchen - scallops, venison carpaccio. Best-reviewed in town."],
 ["Kuter Smazalnia & Grill","Fried-fish shack",53.9180,14.2620,"Swinoujscie, Poland","PICK",1,"The classic Baltic smazalnia ryb: fried cod, fries, surowka. The whole coastal genre in one stop."],
-["Pierogi Babci Halinki","Pierogi",53.9080,14.2480,"Swinoujscie, Poland","PICK",1,"Cheap, homey pierogi — easy kid dinner."],
-/* ---------- SOUTHERN SWEDEN (SKANE — ferry side) ---------- */
-["Vollmers","Modern Swedish",55.5960,13.0040,"Malmo, Sweden","M2",0,"Malmo's two-star — verify current status."],
-["VYN","Skane tasting",55.4750,14.2830,"Skillinge, Sweden","M2",0,"Daniel Berlin's inn on the Osterlen coast — verify stars. Between Ystad and Simrishamn, right on a ferry-country road trip."],
-["Lyran","Neo-bistro",55.5890,13.0110,"Malmo, Sweden","BIB",0,"Michelin Bib Gourmand — verify. Mollevangen."],
-["Malmo Saluhall","Food hall",55.6120,12.9970,"Malmo, Sweden","PICK",1,"Market hall in an old freight depot — everyone picks their own."],
-/* ---------- COPENHAGEN — CASUAL + FAMILY LAYER ---------- */
+["Pierogi Babci Halinki","Pierogi",53.9080,14.2480,"Swinoujscie, Poland","PICK",1,"Cheap, homey pierogi - easy kid dinner."],
+/* ---------- SOUTHERN SWEDEN (SKANE - ferry side) ---------- */
+["Vollmers","Modern Swedish",55.5960,13.0040,"Malmo, Sweden","M2",0,"Malmo's two-star - verify current status."],
+["VYN","Skane tasting",55.4750,14.2830,"Skillinge, Sweden","M2",0,"Daniel Berlin's inn on the Osterlen coast - verify stars. Between Ystad and Simrishamn, right on a ferry-country road trip."],
+["Lyran","Neo-bistro",55.5890,13.0110,"Malmo, Sweden","BIB",0,"Michelin Bib Gourmand - verify. Mollevangen."],
+["Malmo Saluhall","Food hall",55.6120,12.9970,"Malmo, Sweden","PICK",1,"Market hall in an old freight depot - everyone picks their own."],
+/* ---------- COPENHAGEN - CASUAL + FAMILY LAYER ---------- */
 ["Popl","Burgers (ex-noma)",55.6790,12.6000,"Copenhagen, Denmark","PICK",1,"The noma team's burger spot, Christianshavn."],
 ["Juno the Bakery","Bakery",55.7060,12.5770,"Copenhagen, Denmark","PICK",1,"The cardamom bun worth crossing town for. Osterbro."],
-["Restaurant Schonnemann","Smorrebrod",55.6810,12.5750,"Copenhagen, Denmark","PICK",0,"Smorrebrod institution since 1877 — lunch only, book ahead."],
+["Restaurant Schonnemann","Smorrebrod",55.6810,12.5750,"Copenhagen, Denmark","PICK",0,"Smorrebrod institution since 1877 - lunch only, book ahead."],
 ["Sanchez","Mexican",55.6710,12.5560,"Copenhagen, Denmark","PICK",1,"Rosio Sanchez (ex-noma pastry). Vesterbro."],
-["Barr","Nordic beer hall",55.6790,12.5920,"Copenhagen, Denmark","PICK",1,"In noma's old waterfront space — schnitzel and great beer, kids fine."],
-["Selma","Modern smorrebrod",55.6830,12.5620,"Copenhagen, Denmark","BIB",0,"Michelin Bib Gourmand — verify. The new-school open sandwich."]
+["Barr","Nordic beer hall",55.6790,12.5920,"Copenhagen, Denmark","PICK",1,"In noma's old waterfront space - schnitzel and great beer, kids fine."],
+["Selma","Modern smorrebrod",55.6830,12.5620,"Copenhagen, Denmark","BIB",0,"Michelin Bib Gourmand - verify. The new-school open sandwich."]
 ];
 
 /* ---------- STATE ---------- */
@@ -648,11 +648,11 @@ document.getElementById("btn-close").onclick=closeSheet;
 function openWelcome(){
   document.getElementById("sheet-body").innerHTML=`
     <p class="welcome-logo">Feedbag</p>
-    <p class="welcome-sub">A shared map of tables worth the trip —<br>Michelin, Beard, Triple-D, and our own finds.</p>
+    <p class="welcome-sub">A shared map of tables worth the trip -<br>Michelin, Beard, Triple-D, and our own finds.</p>
     <label class="fld"><span>Your first name</span>
       <input type="text" id="w-name" placeholder="e.g. Ryan" autocomplete="given-name"/></label>
     <button class="primary" id="w-go">Start exploring</button>
-    <div class="seednote">Your name signs the ratings you leave ("give it feedbag"). Everything else is shared automatically — nothing to set up.</div>`;
+    <div class="seednote">Your name signs the ratings you leave ("give it feedbag"). Everything else is shared automatically - nothing to set up.</div>`;
   openSheet("Welcome");
   document.getElementById("w-go").onclick=async()=>{
     const n=document.getElementById("w-name").value.trim();
@@ -662,7 +662,7 @@ function openWelcome(){
     btn.disabled=false;btn.textContent="Start exploring";
     if(!res.ok&&res.reason==="taken"){return;}
     PROFILE=n;localStorage.setItem(PROFKEY,n);
-    if(res.fresh)alert("You're in as "+n+"!\n\nYour Feedbag code: "+res.code+"\n\nSave it — enter it with your name to be you on another device.");
+    if(res.fresh)alert("You're in as "+n+"!\n\nYour Feedbag code: "+res.code+"\n\nSave it - enter it with your name to be you on another device.");
     closeSheet();
   };
 }
@@ -781,11 +781,11 @@ function ratingsHTML(p){
   const mine=PROFILE&&r[PROFILE]?r[PROFILE]:{score:0,take:""};
   return `<div class="ratings">
     <span class="fldlabel">The feedbag</span>
-    ${rows||`<p class="geohint">No takes yet — be the first to give it feedbag.</p>`}
+    ${rows||`<p class="geohint">No takes yet - be the first to give it feedbag.</p>`}
     ${PROFILE?`
       <span class="fldlabel" style="margin-top:12px;">Give it feedbag, ${esc(PROFILE)}</span>
       <div class="starpick" id="r-stars">${[1,2,3,4,5].map(n=>`<button data-n="${n}" class="${mine.score>=n?"on":""}" aria-label="${n} star${n>1?"s":""}">★</button>`).join("")}</div>
-      <textarea id="r-take" placeholder="Your take — worth the trip?">${esc(mine.take||"")}</textarea>
+      <textarea id="r-take" placeholder="Your take - worth the trip?">${esc(mine.take||"")}</textarea>
       <button class="ghost" id="r-save">Save my take</button>`
     :`<p class="geohint">Set your name (☰ → Profile) to rate places.</p>`}
   </div>`;
@@ -802,7 +802,7 @@ function openDetail(id){
     ${p.cuisine?`<p class="detail-cuisine">${esc(p.cuisine)}${dist?" · "+dist:""}</p>`:dist?`<p class="detail-cuisine">${dist}</p>`:""}
     ${p.note?`<p class="detail-note">${esc(p.note)}</p>`:""}
     ${p.address?`<p class="detail-addr"><svg viewBox="0 0 24 24"><path d="M12 21s7-6.3 7-11a7 7 0 10-14 0c0 4.7 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>${esc(p.address)}</p>`:""}
-    ${p.v?"":`<p class="verifyrow">Unverified — double-check hours, status, and exact location before you go.</p>`}
+    ${p.v?"":`<p class="verifyrow">Unverified - double-check hours, status, and exact location before you go.</p>`}
     <a class="maplink" href="${gmaps}" target="_blank" rel="noopener">Open in Maps ↗</a>
     ${p.v?"":`<button class="ghost" id="d-verify">Mark as verified</button>`}
     ${ratingsHTML(p)}
@@ -918,7 +918,7 @@ function openMenu(){
       <label class="fld"><span>Your name (signs your ratings)</span>
         <input type="text" id="m-name" value="${esc(PROFILE)}" placeholder="e.g. Ryan"/></label>
       <button class="ghost" id="m-savename">Save name</button>
-      ${CLAIM_OK?`<p class="geohint">Feedbag code for this name: <b>${esc(fbCode())}</b> — enter it with your name to sign in on another device.</p>`:""}
+      ${CLAIM_OK?`<p class="geohint">Feedbag code for this name: <b>${esc(fbCode())}</b> - enter it with your name to sign in on another device.</p>`:""}
     </div>
     <div class="menusec">
       <span class="fldlabel">Shared feedbag <span style="color:var(--pick)">· automatic</span></span>
@@ -935,7 +935,7 @@ function openMenu(){
       <button class="ghost" id="m-guide">How Feedbag works</button>
     </div>
     <div class="seednote">
-      <b>Everything is shared automatically</b> with everyone using this Feedbag. Removing a place archives it — nothing is ever hard-deleted. Data sources and pack tools live under Admin.
+      <b>Everything is shared automatically</b> with everyone using this Feedbag. Removing a place archives it - nothing is ever hard-deleted. Data sources and pack tools live under Admin.
     </div>`;
   openSheet("Feedbag settings");
   document.getElementById("m-savename").onclick=async()=>{
@@ -945,13 +945,13 @@ function openMenu(){
     const res=await claimFlow(n);
     if(!res.ok&&res.reason==="taken"){setStatus("m-cloudstatus",'"'+n+'" belongs to someone else. Try a variant.');return;}
     PROFILE=n;localStorage.setItem(PROFKEY,n);
-    setStatus("m-cloudstatus",res.ok?`Hi, ${n}. Your Feedbag code is ${fbCode()} — enter it with your name on other devices.`:"Couldn't verify right now (connection). It will retry on next open.");
+    setStatus("m-cloudstatus",res.ok?`Hi, ${n}. Your Feedbag code is ${fbCode()} - enter it with your name on other devices.`:"Couldn't verify right now (connection). It will retry on next open.");
     openMenu();
   };
   document.getElementById("m-sync").onclick=async()=>{
     setStatus("m-cloudstatus","Syncing…");
     const ok=await cloudPullMerge();
-    setStatus("m-cloudstatus",ok?"Synced — you're up to date.":"Sync failed (connection?). Your data is safe on this device.");
+    setStatus("m-cloudstatus",ok?"Synced - you're up to date.":"Sync failed (connection?). Your data is safe on this device.");
     renderMarkers();
   };
   document.getElementById("m-export").onclick=exportData;
@@ -983,24 +983,22 @@ function mergeSeeds(){
 function openGuide(){
   document.getElementById("sheet-body").innerHTML=`<div class="guide">
     <h3>What this is</h3>
-    <p>Feedbag is a shared map of restaurants worth traveling for — Michelin stars and Bib Gourmands, James Beard winners, Diners Drive-Ins &amp; Dives stops, local icons, and our own picks. One map, everyone's ratings.</p>
+    <p>Feedbag is a shared map of restaurants worth traveling for - Michelin stars and Bib Gourmands, James Beard winners, Diners Drive-Ins &amp; Dives stops, local icons, and our own picks. One map, everyone's ratings.</p>
     <h3>Getting started (that's it)</h3>
     <ol>
       <li>Open this link. On iPhone: Safari → Share → <b>Add to Home Screen</b>. Android: Chrome → ⋮ → Add to Home screen.</li>
-      <li>Type your first name when asked. Done — everything syncs automatically.</li>
+      <li>Type your first name when asked. Done - everything syncs automatically.</li>
     </ol>
     <h3>Using it</h3>
     <ol>
-      <li><b>Chips</b> filter by lens — Michelin, Bib Gourmand (great food, fair price), Beard, Triple-D, our picks, family-friendly, and On Resy (Amex Platinum credit).</li>
-      <li><b>Tap the counter</b> (bottom left) for a list — sorted by distance when location is on.</li>
+      <li><b>Chips</b> filter by lens - Michelin, Bib Gourmand (great food, fair price), Beard, Triple-D, our picks, family-friendly, and On Resy (easy to book).</li>
+      <li><b>Tap the counter</b> (bottom left) for a list - sorted by distance when location is on.</li>
       <li><b>Tap a pin → give it feedbag</b>: 1–5 stars and a short take, signed with your name.</li>
       <li><b>Add a place</b>: type the address, hit Find, tag the lenses. It appears for everyone.</li>
-      <li><b>Unverified</b> means the entry came from research, not a visit — check it before planning a night around it.</li>
+      <li><b>Unverified</b> means the entry came from research, not a visit - check it before planning a night around it.</li>
     </ol>
     <h3>Trust notes</h3>
-    <p>Removing a place archives it rather than deleting — nothing is ever lost. Accolade data is a starting signal, not gospel; stars change yearly. The map improves as people verify and rate.</p>
-    <h3>For the admin (Ryan)</h3>
-    <p>App updates: replace <code>index.html</code> in the GitHub repo. Data lives in Supabase and survives all updates. City packs import via ☰ → Import &amp; merge. Weekly-ish: Export a backup.</p>
+    <p>Removing a place archives it rather than deleting - nothing is ever lost. Accolade data is a starting signal, not gospel; stars change yearly. The map improves as people verify and rate.</p>
   </div>`;
   openSheet("How Feedbag works");
 }
@@ -1134,7 +1132,7 @@ async function wikidataPull(){
     const qids=(sj.search||[])
       .filter(e=>/michelin star/i.test(e.label||"")||/michelin star/i.test(e.description||""))
       .map(e=>e.id).slice(0,8);
-    if(!qids.length){if(st)st.textContent="Couldn't locate Michelin award entities — Wikidata's modeling may have changed.";return;}
+    if(!qids.length){if(st)st.textContent="Couldn't locate Michelin award entities - Wikidata's modeling may have changed.";return;}
     if(st)st.textContent="Querying starred restaurants (can take ~20s)…";
     const sparql=`SELECT ?item ?itemLabel ?coord ?awardLabel ?countryLabel WHERE {
       VALUES ?award { ${qids.map(q=>"wd:"+q).join(" ")} }
@@ -1145,7 +1143,7 @@ async function wikidataPull(){
     const qr=await fetch("https://query.wikidata.org/sparql?format=json&query="+encodeURIComponent(sparql),{headers:{Accept:"application/sparql-results+json"}});
     const qj=await qr.json();
     const rows=(qj.results&&qj.results.bindings)||[];
-    if(!rows.length){if(st)st.textContent="Query returned nothing — try again later.";return;}
+    if(!rows.length){if(st)st.textContent="Query returned nothing - try again later.";return;}
     const have=new Set(PLACES.map(p=>p.name.toLowerCase()));
     const added=[];
     rows.forEach(b=>{
@@ -1156,12 +1154,12 @@ async function wikidataPull(){
       if(/(three|3)/.test(award))stars=3;else if(/(two|2)/.test(award))stars=2;
       const rec={id:uid(),name,cuisine:"",address:(b.countryLabel&&b.countryLabel.value)||"",
         accolades:["michelin"],stars,fam:false,resy:false,lat:+m[2],lng:+m[1],
-        note:"Imported from Wikidata ("+(b.awardLabel?b.awardLabel.value:"Michelin")+"). Star data may be historical — verify.",v:false,archived:false};
+        note:"Imported from Wikidata ("+(b.awardLabel?b.awardLabel.value:"Michelin")+"). Star data may be historical - verify.",v:false,archived:false};
       PLACES.push(rec);have.add(name.toLowerCase());added.push(rec);
     });
     persistLocal();if(added.length)cloudUpsert(added);
     renderMarkers();
-    if(st)st.textContent=added.length?`Added ${added.length} places from Wikidata. All marked unverified.`:"No new places — everything found was already in the feedbag.";
+    if(st)st.textContent=added.length?`Added ${added.length} places from Wikidata. All marked unverified.`:"No new places - everything found was already in the feedbag.";
   }catch(e){
     if(st)st.textContent="Wikidata pull failed (connection or service busy). Try again in a minute.";
   }
