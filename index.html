@@ -796,6 +796,7 @@ function openDetail(id){
     +(p.fam?`<span class="badge" style="background:${FAM_COLOR}">Family-friendly</span>`:"")
     +(p.resy?`<span class="badge" style="background:${RESY_COLOR}">On Resy</span>`:"");
   const gmaps=`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.name+" "+(p.address||""))}`;
+  const gsearch=`https://www.google.com/search?q=${encodeURIComponent(p.name+" "+(p.address||"")+" hours")}`;
   const dist=userLoc?fmtDist(distMi(userLoc.lat,userLoc.lng,p.lat,p.lng))+" away":"";
   document.getElementById("sheet-body").innerHTML=`
     ${badges?`<div class="accbadges">${badges}</div>`:""}
@@ -803,7 +804,7 @@ function openDetail(id){
     ${p.note?`<p class="detail-note">${esc(p.note)}</p>`:""}
     ${p.address?`<p class="detail-addr"><svg viewBox="0 0 24 24"><path d="M12 21s7-6.3 7-11a7 7 0 10-14 0c0 4.7 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>${esc(p.address)}</p>`:""}
     ${p.v?"":`<p class="verifyrow">Unverified - double-check hours, status, and exact location before you go.</p>`}
-    <a class="maplink" href="${gmaps}" target="_blank" rel="noopener">Open in Maps ↗</a>
+    <div class="row2" style="margin-top:10px;"><a class="maplink" style="flex:1;margin-top:0;" href="${gmaps}" target="_blank" rel="noopener">Open in Maps ↗</a><a class="maplink" style="flex:1;margin-top:0;" href="${gsearch}" target="_blank" rel="noopener">Hours &amp; info ↗</a></div>
     ${p.v?"":`<button class="ghost" id="d-verify">Mark as verified</button>`}
     ${ratingsHTML(p)}
     <div class="row2" style="margin-top:16px;">
