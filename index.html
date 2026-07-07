@@ -543,7 +543,7 @@ let userLoc=null;
 const markers={};
 
 /* ---------- MAP ---------- */
-const map=L.map("map",{zoomControl:false}).setView([45,-30],3);
+const map=L.map("map",{zoomControl:false}).setView([38.5,-79.5],5);
 L.control.zoom({position:"topright"}).addTo(map);
 L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",{attribution:"© OpenStreetMap © CARTO",maxZoom:19}).addTo(map);
 document.querySelector(".leaflet-top.leaflet-right").style.marginTop="96px";
